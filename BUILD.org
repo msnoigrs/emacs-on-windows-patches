@@ -1,0 +1,245 @@
+#+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
+#+AUTHOR: 五十嵐 正尚
+#+EMAIL: syoux2@gmail.com
+#+DATE: 2018/06/21
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  ja
+#+OPTIONS: H:4 num:nil toc:nil ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
+#+OPTIONS: author:t creator:nil email:nil date:t
+
+* IMEパッチなどを適用したGNU Emacsのビルド方法
+
+GNU Emacsのビルド方法については、[[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][abount patches and how to build emacs on Windows. (Japanese)]]や[[https://github.com/chuntaro/NTEmacs64]]に詳しく書いてありますが、ここにも簡単に記します。日本の組織内では、プロキシを経由するネット環境が多いと思います。そういう環境の人でもつまずきが少なくなるように書きました。64bit環境を想定しています。
+
+** MSYS2のインストール
+
+MSYS2のインストーラーを[[http://www.msys2.org/]]からダウンロードします。
+
+インストールが終わると、スタートメニューには以下の３つが追加されます。
+
+- MSYS2 MinGW 64-bit
+- MSYS2 MinGW 32-bit
+- MSYS2 MSYS
+
+上からMinGW(gccが使える最小環境)の64bit環境と32bit環境、MSYS(bashプロンプトと各種UNIXコマンドおよびパッケージ更新環境)です。どれを選択してもminttyが開き、bashが起動します。
+
+以下の説明では、インストール先を =C:\msys64= にしたものとします。
+
+** MSYS2更新のためのプロキシの設定(optional)
+
+プロキシを経由して外部に接続する環境において、MSYS2の更新を行うための設定です。必要なければ、読み飛ばしてください。
+
+メニューからMSYS2 MSYSを起動し、 =pacman= の設定ファイルを編集します。
+
+#+BEGIN_EXAMPLE
+$ vim /etc/pacman.conf
+#+END_EXAMPLE
+
+=XferCommand= の行を探し、 =curl= の =-x= オプションにプロキシの情報を追記します。
+
+#+BEGIN_EXAMPLE
+XferCommand = /usr/bin/curl -x http://プロキシホスト名:ポート番号 -C - -f %u > %o
+#+END_EXAMPLE
+
+Windowsのエディタで編集する場合、 =C:\msys64\etc\pacman.conf= を編集してください。
+
+プロキシのホスト名やポート番号の情報は、利用する環境に合わせてください。プロキシの設定方法は他にも様々ありますので、お好みの方法でかまいません。 =curl= ではなく =wget= を使う方法もあります。
+
+** MSYSやMinGWの更新
+
+メニューからMSYS2 MSYSを起動し =pacman= コマンドで更新します。
+
+#+BEGIN_EXAMPLE
+$ pacman -Syuu
+#+END_EXAMPLE
+
+パッケージデータベースの同期がはじまり、更新対象のパッケージが表示されます。
+
+#+BEGIN_EXAMPLE
+:: インストールを行いますか？  [Y/n]
+#+END_EXAMPLE
+
+と出力され、入力待ちとなりましたら =y= もしくは =Enter= を入力してください。
+そうすると、パッケージのダウンロードが始まり更新処理が行われます。終わるまでしばらくお待ちください。
+
+更新が終わって、以下のような警告が出力される場合があります。
+
+#+BEGIN_EXAMPLE
+警告 : terminate MSYS2 without returning to shell and check for updates again
+警告 : for example close your terminal window instead of calling exit
+#+END_EXAMPLE
+
+これが表示されたらメッセージ通りに、一旦端末を閉じてから再度更新を行います。
+
+すべての更新が完了すると、以下のように出力されます。
+
+#+BEGIN_EXAMPLE
+ 何も行うことがありません
+#+END_EXAMPLE
+
+** Emacsのビルドに必要なパッケージのインストール
+
+パッケージのインストールにも =pacman= コマンドを使います。
+
+#+BEGIN_EXAMPLE
+$ pacman -S --needed base-devel \
+  mingw-w64-x86_64-toolchain \
+  mingw-w64-x86_64-xpm-nox \
+  mingw-w64-x86_64-libtiff \
+  mingw-w64-x86_64-giflib \
+  mingw-w64-x86_64-libpng \
+  mingw-w64-x86_64-libjpeg-turbo \
+  mingw-w64-x86_64-librsvg \
+  mingw-w64-x86_64-lcms2 \
+  mingw-w64-x86_64-jansson \
+  mingw-w64-x86_64-libxml2 \
+  mingw-w64-x86_64-gnutls \
+  mingw-w64-x86_64-zlib
+#+END_EXAMPLE
+
+=git= もインストールします。
+
+#+BEGIN_EXAMPLE
+$ pacman -S git
+#+END_EXAMPLE
+
+** ソースツリーの展開
+
+以下、作業用ディレクトリを =~/emacs= とします。
+
+#+BEGIN_EXAMPLE
+$ mkdir ~/emacs
+$ cd ~/emacs
+#+END_EXAMPLE
+
+*** Emacsソースツリーを展開
+
+emacsのソースをダウンロードします。
+
+[[https://www.gnu.org/software/emacs/download.html][GNU Emacs Download - GNU Project]]からリンクをたどるか、
+=wget= や =curl= を使って取得します。(プロキシの設定が必要であれば
+
+JAISTから取得する例
+
+#+BEGIN_EXAMPLE
+$ wget http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.1.tar.xz
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+$ curl -O http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.1.tar.xz
+#+END_EXAMPLE
+
+展開すると、 =emacs-26.1= ディレクトリの下にソースツリーができます。
+
+#+BEGIN_EXAMPLE
+$ tar xf emacs-26.1.tar.xz
+#+END_EXAMPLE
+
+本リポジトリのパッチを取得します。gitを使う例を示しますが、[[https://github.com/msnoigrs/emacs-on-windows-patches]]からブラウザを使ってダウンロードしてもかまいません。
+
+#+BEGIN_EXAMPLE
+$ git clone https://github.com/msnoigrs/emacs-on-windows-patches.git
+#+END_EXAMPLE
+
+gitにプロキシの設定が必要な場合は、[[https://gist.github.com/evantoli/f8c23a37eb3558ab8765][Configure Git to use a proxy]]を参考にして設定してください。
+
+パッチを適用します。
+
+#+BEGIN_EXAMPLE
+$ patch -p1 < ../emacs-on-windows-patches/00-emacs-26.1-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/01-emacs-26.1-disable-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/02-emacs-26.1-dontusereg.patch
+$ patch -p1 < ../emacs-on-windows-patches/03-emacs-26.1-imagemagick7.patch
+$ patch -p1 < ../emacs-on-windows-patches/04-emacs-26.1-cmigemo.patch
+#+END_EXAMPLE
+
+これでパッチ済みのソースツリーができあがります。
+ここではすべてのパッチを適用していますが、使いたいものだけでもよいです。
+
+*** nkfソースツリーを展開(cmigemoを組み込む場合)
+
+nkfが後のcmigemoのビルド時に必要ですので、準備します。
+
+nkfのソースをダウンロードします。
+
+#+BEGIN_EXAMPLE
+$ wget http://iij.dl.osdn.jp/nkf/64158/nkf-2.1.4.tar.gz
+$ tar zxf nkf-2.1.4.tar.gz
+#+END_EXAMPLE
+
+*** cmigemoソースツリーを展開(cmigemoを組み込む場合)
+
+cmigemoを組み込む場合に必要ですので、準備します。
+
+#+BEGIN_EXAMPLE
+$ git clone https://github.com/koron/cmigemo.git
+#+END_EXAMPLE
+
+cmigemoのビルド中に、SKK辞書のダウンロードが行われます。プロキシなどの事情により失敗する可能性がある場合、先にダウンロードしておくとよいです。
+
+#+BEGIN_EXAMPLE
+$ cd cmigemo/dict
+$ wget http://openlab.ring.gr.jp/skk/dic/SKK-JISYO.L.gz
+$ gzip -d SKK-JISYO.L.gz
+#+END_EXAMPLE
+
+** ビルド
+
+#+BEGIN_note
+ここからは、MinGWの環境で作業します。
+#+END_note
+
+メニューからMSYS2 MinGW 64-bitを起動します。
+
+*** nkfのビルド(cmigemoを組み込む場合)
+
+nkfをビルドしてインストールします。
+
+#+BEGIN_EXAMPLE
+$ cd ~/emacs/nkf-2.1.4
+$ make
+$ make install
+#+END_EXAMPLE
+
+=/usr/local/bin/nkf.exe= にインストールされます。
+
+*** cmigemoのビルド(cmigemoを組み込む場合)
+
+cmigemoをビルドしてインストールします。
+
+#+BEGIN_EXAMPLE
+$ cd ~/emacs/cmigemo
+$ ./configure --prefix=/usr/local
+$ make mingw-all
+$ make mingw-install
+#+END_EXAMPLE
+
+=/usr/local/bin/cmigemo.exe= 、 =/usr/local/bin/migemo.dll= などがインストールされます。
+
+*** Emacsのビルド
+
+emacsをビルドしてインストールします。
+
+#+BEGIN_EXAMPLE
+$ cd ~/emacs/emacs-26.1
+$ ./autogen.sh
+$ CFLAGS='-Ofast -march=x86-64 -mtune=corei7 -static' ./configure --without-dbus --without-compress-install --with-modules
+$ make
+$ make install-strip prefix=/c/emacs-26.1
+#+END_EXAMPLE
+
+CFLAGSの値やconfigureのオプションは、環境とお好みに合わせて変更してください。
+ここでは、staticビルドをしています。インストール先は、 =C:\emacs-26.1= にしています。
+
+これでインストールは完了です。
+
+* emacsを起動してみる
+
+=C:\emacs-26.1\bin\runemacs.exe= を起動します。
+
+emacsから見たホームディレクトリ =~/= は、 =C:\Users\ログインユーザー名\AppData\Roaming= です。
+したがって設定ファイルの位置は =C:\Users\ログインユーザー名\AppData\Roaming\.emacs.d\init.el= です。
+
+ちなみにMSYS2のホームディレクトリ =~/= は、 =C:\msys64\home\ログインユーザー名= です。Emacsのビルドを行ったディレクトリ =~/emacs= は、 =C:\msys64\home\ログインユーザー名\emacs= の位置にあります。ビルド作業が終わったら、削除してもかまいません。

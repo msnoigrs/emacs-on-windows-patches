@@ -1,0 +1,138 @@
+diff --git a/src/w32fns.c b/src/w32fns.c
+index df977f8..1c2afb6 100644
+--- a/src/w32fns.c
++++ b/src/w32fns.c
+@@ -84,6 +84,8 @@ extern void w32_menu_display_help (HWND, HMENU, UINT, UINT);
+ extern void w32_free_menu_strings (HWND);
+ extern const char *map_w32_filename (const char *, const char **);
+ 
++static int ime_disabled = 0;
++
+ #ifndef IDC_HAND
+ #define IDC_HAND MAKEINTRESOURCE(32649)
+ #endif
+@@ -198,6 +200,8 @@ struct MONITOR_INFO_EX
+ DECLARE_HANDLE(HMONITOR);
+ #endif
+ 
++typedef HIMC (WINAPI * ImmAssociateContextEx_Proc) (IN HWND wnd, IN HIMC context, IN DWORD flags);
++
+ typedef BOOL (WINAPI * TrackMouseEvent_Proc)
+   (IN OUT LPTRACKMOUSEEVENT lpEventTrack);
+ #ifndef USE_W32_IME
+@@ -220,6 +224,8 @@ typedef BOOL (WINAPI * EnumDisplayMonitors_Proc)
+ typedef BOOL (WINAPI * GetTitleBarInfo_Proc)
+   (IN HWND hwnd, OUT TITLEBAR_INFO* info);
+ 
++ImmAssociateContextEx_Proc associate_contextex_fn = NULL;
++
+ TrackMouseEvent_Proc track_mouse_event_fn = NULL;
+ #ifndef USE_W32_IME
+ ImmGetCompositionString_Proc get_composition_string_fn = NULL;
+@@ -5189,6 +5195,11 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+       goto dflt;
+ 
+     case WM_SETFOCUS:
++      if (ime_disabled)
++        associate_contextex_fn (hwnd, 0, 0);
++      else
++        associate_contextex_fn (hwnd, 0, IACE_DEFAULT);
++
+       dpyinfo->faked_key = 0;
+       reset_modifiers ();
+       if (!w32_kbdhook_active)
+@@ -5539,6 +5550,10 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+ #endif
+ #endif /* USE_W32_IME */
+ 
++    case WM_EMACS_IMM_ASSOCIATE_CONTEXT:
++      associate_contextex_fn (hwnd, 0, lParam);
++      break;
++
+     default:
+ 
+ #ifdef USE_W32_IME
+@@ -9310,6 +9325,47 @@ DEFUN ("w32-ime-perform-reconversion",
+ #endif /* USE_W32_IME */
+ 
+ 
++DEFUN ("disable-w32-ime", Fdisable_w32_ime, Sdisable_w32_ime,
++       0, 0, "", doc: /* Disable W32 IME.  */)
++  (void)
++{
++  struct frame *f = SELECTED_FRAME ();
++
++  if (f)
++    {
++      SendMessage (FRAME_W32_WINDOW (f), WM_EMACS_IMM_ASSOCIATE_CONTEXT,
++                   (WPARAM) 0, (LPARAM) 0);
++      ime_disabled = 1;
++    }
++
++  return Qnil;
++}
++
++DEFUN ("enable-w32-ime", Fenable_w32_ime, Senable_w32_ime,
++       0, 0, "", doc: /* Enable W32 IME.  */)
++  (void)
++{
++  struct frame *f = SELECTED_FRAME ();
++
++  if (f)
++    {
++      SendMessage (FRAME_W32_WINDOW (f), WM_EMACS_IMM_ASSOCIATE_CONTEXT,
++                   (WPARAM) 0, (LPARAM) IACE_DEFAULT);
++      ime_disabled = 0;
++    }
++
++  return Qnil;
++}
++DEFUN ("w32-ime-disabled-p", Fw32_ime_disabled_p, Sw32_ime_disabled_p,
++       0, 0, 0, doc: /* Return t if W32 IME is disabled.  */)
++  (void)
++{
++  if (ime_disabled)
++    return Qt;
++  else
++    return Qnil;
++}
++
+ /***********************************************************************
+ 			 w32 specialized functions
+  ***********************************************************************/
+@@ -11951,6 +12007,10 @@ window instead of current window.  */);
+ 
+   /* W32 specific functions */
+ 
++  defsubr (&Sdisable_w32_ime);
++  defsubr (&Senable_w32_ime);
++  defsubr (&Sw32_ime_disabled_p);
++
+   defsubr (&Sw32_define_rgb_color);
+   defsubr (&Sw32_default_color_map);
+   defsubr (&Sw32_display_monitor_attributes_list);
+@@ -12238,6 +12298,11 @@ void
+ globals_of_w32fns (void)
+ {
+   HMODULE user32_lib = GetModuleHandle ("user32.dll");
++  {
++    HMODULE imm32_lib = GetModuleHandle ("imm32.dll");
++    associate_contextex_fn = (ImmAssociateContextEx_Proc)
++      GetProcAddress (imm32_lib, "ImmAssociateContextEx");
++  }
+   /*
+     TrackMouseEvent not available in all versions of Windows, so must load
+     it dynamically.  Do it once, here, instead of every time it is used.
+diff --git a/src/w32term.h b/src/w32term.h
+index 38aa91a..6e719ae 100644
+--- a/src/w32term.h
++++ b/src/w32term.h
+@@ -630,6 +630,8 @@ do { \
+ #define UNICODE_NOCHAR 0xFFFF
+ #endif
+ 
++#define WM_EMACS_IMM_ASSOCIATE_CONTEXT (WM_USER+2400)
++
+ #define WM_EMACS_START                 (WM_USER + 1)
+ #define WM_EMACS_KILL                  (WM_EMACS_START + 0)
+ #define WM_EMACS_CREATEWINDOW          (WM_EMACS_START + 1)
