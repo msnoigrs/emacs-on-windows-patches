@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index 91c2085..dd6ce96 100644
+index 7f221fa..179e2cc 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -383,6 +383,8 @@ OPTION_DEFAULT_ON([zlib],[don't compile with zlib decompression support])
@@ -11,7 +11,7 @@ index 91c2085..dd6ce96 100644
  AC_ARG_WITH([file-notification],[AS_HELP_STRING([--with-file-notification=LIB],
   [use a file notification library (LIB one of: yes, inotify, kqueue, gfile, w32, no)])],
   [ case "${withval}" in
-@@ -3622,6 +3624,15 @@ fi
+@@ -3623,6 +3625,15 @@ fi
  AC_SUBST(LIBPNG)
  AC_SUBST(PNG_CFLAGS)
  
@@ -27,16 +27,16 @@ index 91c2085..dd6ce96 100644
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -5404,7 +5415,7 @@ emacs_config_features=
+@@ -5410,7 +5421,7 @@ emacs_config_features=
  for opt in XAW3D XPM JPEG TIFF GIF PNG RSVG CAIRO IMAGEMAGICK SOUND GPM DBUS \
-   GCONF GSETTINGS NOTIFY ACL LIBSELINUX GNUTLS LIBXML2 FREETYPE M17N_FLT \
-   LIBOTF XFT ZLIB TOOLKIT_SCROLL_BARS X_TOOLKIT OLDXMENU X11 NS MODULES \
--  THREADS XWIDGETS LIBSYSTEMD CANNOT_DUMP LCMS2; do
-+  CMIGEMO THREADS XWIDGETS LIBSYSTEMD CANNOT_DUMP LCMS2; do
+   GCONF GSETTINGS GLIB NOTIFY ACL LIBSELINUX GNUTLS LIBXML2 FREETYPE M17N_FLT \
+   LIBOTF XFT ZLIB TOOLKIT_SCROLL_BARS X_TOOLKIT OLDXMENU X11 XDBE XIM \
+-  NS MODULES THREADS XWIDGETS LIBSYSTEMD CANNOT_DUMP LCMS2; do
++  NS MODULES CMIGEMO THREADS XWIDGETS LIBSYSTEMD CANNOT_DUMP LCMS2; do
  
      case $opt in
        CANNOT_DUMP) eval val=\${$opt} ;;
-@@ -5461,6 +5472,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -5468,6 +5479,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
    Does Emacs use -lsystemd?                               ${HAVE_LIBSYSTEMD}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}
@@ -188,10 +188,10 @@ index 0000000..6c00173
 +
 +(provide 'migemo-isearch-auto-enable)
 diff --git a/src/Makefile.in b/src/Makefile.in
-index 15ca166..a02c1ab 100644
+index eb34b97..e9dc57c 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -393,7 +393,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o \
+@@ -394,7 +394,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o \
  	region-cache.o sound.o atimer.o \
  	doprnt.o intervals.o textprop.o composite.o xml.o lcms.o $(NOTIFY_OBJ) \
  	$(XWIDGETS_OBJ) \
@@ -665,10 +665,10 @@ index 0000000..37580d2
 +}
 +#endif /* HAVE_CMIGEMO */
 diff --git a/src/emacs.c b/src/emacs.c
-index 017c623..d7a37b4 100644
+index f2bebac..8cb84a5 100644
 --- a/src/emacs.c
 +++ b/src/emacs.c
-@@ -201,6 +201,10 @@ int initial_argc;
+@@ -206,6 +206,10 @@ int initial_argc;
  static void sort_args (int argc, char **argv);
  static void syms_of_emacs (void);
  
@@ -679,7 +679,7 @@ index 017c623..d7a37b4 100644
  /* C99 needs each string to be at most 4095 characters, and the usage
     strings below are split to not overflow this limit.  */
  static char const *const usage_message[] =
-@@ -1610,6 +1614,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+@@ -1619,6 +1623,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
        syms_of_threads ();
        syms_of_profiler ();
  

@@ -1,8 +1,8 @@
 diff --git a/nt/addpm.c b/nt/addpm.c
-index ec7d7ff..8812f88 100644
+index a8bcd4a..5e7e3c7 100644
 --- a/nt/addpm.c
 +++ b/nt/addpm.c
-@@ -49,10 +49,6 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
+@@ -52,10 +52,6 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
  #include <shlobj.h>
  #include <ddeml.h>
  
@@ -13,7 +13,7 @@ index ec7d7ff..8812f88 100644
  HDDEDATA CALLBACK DdeCallback (UINT, UINT, HCONV, HSZ, HSZ, HDDEDATA, DWORD,
  			       DWORD);
  
-@@ -68,99 +64,6 @@ DdeCallback (UINT uType, UINT uFmt, HCONV hconv,
+@@ -71,100 +67,6 @@ DdeCallback (UINT uType, UINT uFmt, HCONV hconv,
  	DdeClientTransaction ((LPBYTE)str, strlen (str)+1, conversation, (HSZ)NULL, \
  		              CF_TEXT, XTYP_EXECUTE, 30000, NULL)
  
@@ -110,10 +110,11 @@ index ec7d7ff..8812f88 100644
 -
 -  RegCloseKey (hrootkey);
 -}
- 
+-
  int
  main (int argc, char *argv[])
-@@ -228,7 +131,6 @@ main (int argc, char *argv[])
+ {
+@@ -232,7 +134,6 @@ main (int argc, char *argv[])
  	}
      }
  

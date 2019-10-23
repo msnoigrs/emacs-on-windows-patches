@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
-#+AUTHOR: 五十嵐 正尚
+#+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2018/06/21
+#+DATE: 2019/10/17
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -124,17 +124,17 @@ emacsのソースをダウンロードします。
 JAISTから取得する例
 
 #+BEGIN_EXAMPLE
-$ wget http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.1.tar.xz
+$ wget http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.3.tar.xz
 #+END_EXAMPLE
 
 #+BEGIN_EXAMPLE
-$ curl -O http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.1.tar.xz
+$ curl -O http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.3.tar.xz
 #+END_EXAMPLE
 
-展開すると、 =emacs-26.1= ディレクトリの下にソースツリーができます。
+展開すると、 =emacs-26.3= ディレクトリの下にソースツリーができます。
 
 #+BEGIN_EXAMPLE
-$ tar xf emacs-26.1.tar.xz
+$ tar xf emacs-26.3.tar.xz
 #+END_EXAMPLE
 
 本リポジトリのパッチを取得します。gitを使う例を示しますが、[[https://github.com/msnoigrs/emacs-on-windows-patches]]からブラウザを使ってダウンロードしてもかまいません。
@@ -148,11 +148,11 @@ gitにプロキシの設定が必要な場合は、[[https://gist.github.com/eva
 パッチを適用します。
 
 #+BEGIN_EXAMPLE
-$ patch -p1 < ../emacs-on-windows-patches/00-emacs-26.1-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/01-emacs-26.1-disable-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/02-emacs-26.1-dontusereg.patch
-$ patch -p1 < ../emacs-on-windows-patches/03-emacs-26.1-imagemagick7.patch
-$ patch -p1 < ../emacs-on-windows-patches/04-emacs-26.1-cmigemo.patch
+$ patch -p1 < ../emacs-on-windows-patches/00-emacs-26.3-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/01-emacs-26.3-disable-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/02-emacs-26.3-dontusereg.patch
+$ patch -p1 < ../emacs-on-windows-patches/03-emacs-26.3-imagemagick7.patch
+$ patch -p1 < ../emacs-on-windows-patches/04-emacs-26.3-cmigemo.patch
 #+END_EXAMPLE
 
 これでパッチ済みのソースツリーができあがります。
@@ -223,21 +223,21 @@ $ make mingw-install
 emacsをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd ~/emacs/emacs-26.1
+$ cd ~/emacs/emacs-26.3
 $ ./autogen.sh
-$ CFLAGS='-Ofast -march=x86-64 -mtune=corei7 -static' ./configure --without-dbus --without-compress-install --with-modules
+$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0' LDFLAGS='-s' ./configure --without-dbus --without-compress-install --with-modules
 $ make
-$ make install-strip prefix=/c/emacs-26.1
+$ make install-strip prefix=/c/emacs-26.3
 #+END_EXAMPLE
 
 CFLAGSの値やconfigureのオプションは、環境とお好みに合わせて変更してください。
-ここでは、staticビルドをしています。インストール先は、 =C:\emacs-26.1= にしています。
+ここでは、staticビルドをしています。インストール先は、 =C:\emacs-26.3= にしています。
 
 これでインストールは完了です。
 
 * emacsを起動してみる
 
-=C:\emacs-26.1\bin\runemacs.exe= を起動します。
+=C:\emacs-26.3\bin\runemacs.exe= を起動します。
 
 emacsから見たホームディレクトリ =~/= は、 =C:\Users\ログインユーザー名\AppData\Roaming= です。
 したがって設定ファイルの位置は =C:\Users\ログインユーザー名\AppData\Roaming\.emacs.d\init.el= です。

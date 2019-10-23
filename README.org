@@ -1,7 +1,7 @@
 #+TITLE: Japanese IME patch and others for building with MinGW on Windows
-#+AUTHOR: Igarashi Masanao
+#+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2018/06/21
+#+DATE: 2019/10/17
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -9,14 +9,14 @@
 #+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
 #+OPTIONS: author:t creator:nil email:nil date:t
 
-* GNU Emacs 26.1をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ
+* GNU Emacs 26.3をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ
 
-このリポジトリに含まれるパッチは、以下の二つの情報由来のものです。Emacs 26.1のソースに適用できるように作成してあります。
+このリポジトリに含まれるパッチは、以下の二つの情報由来のものです。Emacs 26.3のソースに適用できるように作成してあります。
 
 - [[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][abount patches and how to build emacs on Windows. (Japanese)]] :: 日本語Windows向けのIMEパッチやcmigemoを組み込むためのパッチ情報と、Windows上でemacsをコンパイルして使うための情報が丁寧に記されています。
 - [[https://github.com/m-parashar/emax64][emax64]] :: ImageMagick 7に対応したWindows版emacsが公開されています。[[https://github.com/politza/pdf-tools][pdf-tools]]も動作します。
 
-** 00-emacs-26.1-w32-ime.patch 
+** 00-emacs-26.3-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/ee4457df2f54c5f3ca0d02b56e371233][emacs-26.1-rc1-w32-ime.diff]]と意味的に同じものです。
 
@@ -33,7 +33,7 @@ configureに以下のオプションを追加しています。\\
 --without-documentfeed : DOCUMENTFEED無効
 #+END_EXAMPLE
 
-** 01-emacs-26.1-disable-w32-ime.patch
+** 01-emacs-26.3-disable-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/da3370acb767096ce11fe867c6d9da6a][emacs-26.1-rc1-disable-w32-ime.diff]]と意味的に同じものです。
 
@@ -47,15 +47,15 @@ configureに以下のオプションを追加しています。\\
 (w32-ime-disabled-p) ; IMEが無効化されている場合 t を返す
 #+END_EXAMPLE
 
-** 02-emacs-26.1-dontusereg.patch
+** 02-emacs-26.3-dontusereg.patch
 
 addpm.exeの処理において各種パスのレジストリ登録処理を省きます。addpm.exeにはスタートメニューにemacsのショートカットを作成するといった機能があります。[[https://github.com/m-parashar/emax64][emax64]]由来です。
 
-** 03-emacs-26.1-imagemagick7.patch
+** 03-emacs-26.3-imagemagick7.patch
 
 ImageMagick 7をサポートするためのパッチ。[[https://github.com/m-parashar/emax64][emax64]]由来です。
 
-** 04-emacs-26.1-cmigemo.patch 
+** 04-emacs-26.3-cmigemo.patch
 
 [[https://gist.github.com/37317c89325bfb3f02f4142c5764b7b5][emacs-26.1-rc1-cmigemo.diff]]と意味的に同じものです。
 

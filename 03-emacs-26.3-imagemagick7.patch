@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index 9346236..91c2085 100644
+index d0b2d7d..7f221fa 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -2528,7 +2528,7 @@ if test "${HAVE_X11}" = "yes" || test "${HAVE_NS}" = "yes" || test "${HAVE_W32}"
@@ -12,7 +12,7 @@ index 9346236..91c2085 100644
  
      if test $HAVE_IMAGEMAGICK = yes; then
 diff --git a/lisp/loadup.el b/lisp/loadup.el
-index ec55f48..a5a0c5b 100644
+index 10cb350..dcd6723 100644
 --- a/lisp/loadup.el
 +++ b/lisp/loadup.el
 @@ -285,6 +285,7 @@
@@ -24,20 +24,20 @@ index ec55f48..a5a0c5b 100644
          (load "ls-lisp")
          (load "dos-w32"))))
 diff --git a/lisp/term/w32-win.el b/lisp/term/w32-win.el
-index ed76490..bf8fbd3 100644
+index 12c3e97..76c4d87 100644
 --- a/lisp/term/w32-win.el
 +++ b/lisp/term/w32-win.el
-@@ -271,6 +271,8 @@ See the documentation of `create-fontset-from-fontset-spec' for the format.")
+@@ -280,6 +280,8 @@ See the documentation of `create-fontset-from-fontset-spec' for the format.")
         '(gdk-pixbuf "libgdk_pixbuf-2.0-0.dll")
         '(glib "libglib-2.0-0.dll")
         '(gobject "libgobject-2.0-0.dll")
-+       '(magickwand "libMagickWand-7.Q16HDRI-5.dll" "libMagickWand-7.Q16-5.dll")
-+       '(magickcore "libMagickCore-7.Q16HDRI-5.dll" "libMagickCore-7.Q16-5.dll")
++       '(magickwand "libMagickWand-7.Q16HDRI-6.dll" "libMagickWand-7.Q16-6.dll")
++       '(magickcore "libMagickCore-7.Q16HDRI-6.dll" "libMagickCore-7.Q16-6.dll")
         (if (>= libgnutls-version 30400)
  	   '(gnutls "libgnutls-30.dll")
  	 '(gnutls "libgnutls-28.dll" "libgnutls-26.dll"))
 diff --git a/src/image.c b/src/image.c
-index 37416c1..986e259 100644
+index bda60c0..de28d45 100644
 --- a/src/image.c
 +++ b/src/image.c
 @@ -2316,7 +2316,7 @@ x_find_image_fd (Lisp_Object file, int *pfd)
@@ -49,7 +49,7 @@ index 37416c1..986e259 100644
  	}
      }
    else	/* fd < 0, but not -2 */
-@@ -8270,16 +8270,227 @@ imagemagick_image_p (Lisp_Object object)
+@@ -8272,15 +8272,225 @@ imagemagick_image_p (Lisp_Object object)
  /* The GIF library also defines DrawRectangle, but its never used in Emacs.
     Therefore rename the function so it doesn't collide with ImageMagick.  */
  #define DrawRectangle DrawRectangleGif
@@ -70,7 +70,6 @@ index 37416c1..986e259 100644
  extern WandExport void PixelGetMagickColor (const PixelWand *,
  					    MagickPixelPacket *);
  #endif
- 
 +#ifdef WINDOWSNT
 +DEF_DLL_FN (MagickWand *, CloneMagickWand, (const MagickWand *));
 +DEF_DLL_FN (MagickWand *, DestroyMagickWand, (MagickWand *));
@@ -273,11 +272,10 @@ index 37416c1..986e259 100644
 +#define GetMagickList fn_GetMagickList
 +
 +#endif /* !WINDOWSNT */
-+
+ 
  /* Log ImageMagick error message.
     Useful when an ImageMagick function returns the status `MagickFalse'.  */
- 
-@@ -8432,7 +8643,7 @@ imagemagick_compute_animated_image (MagickWand *super_wand, int ino)
+@@ -8434,7 +8644,7 @@ imagemagick_compute_animated_image (MagickWand *super_wand, int ino)
        PixelWand **source, **dest;
        size_t source_width, source_height;
        ssize_t source_left, source_top;
@@ -286,7 +284,7 @@ index 37416c1..986e259 100644
        DisposeType dispose;
        ptrdiff_t lines = 0;
  
-@@ -8497,7 +8708,7 @@ imagemagick_compute_animated_image (MagickWand *super_wand, int ino)
+@@ -8499,7 +8709,7 @@ imagemagick_compute_animated_image (MagickWand *super_wand, int ino)
  	      if (dispose == BackgroundDispose || PixelGetAlpha (source[x]))
  		{
  		  PixelGetMagickColor (source[x], &pixel);
@@ -295,7 +293,7 @@ index 37416c1..986e259 100644
  		}
  	    }
  	  PixelSyncIterator (dest_iterator);
-@@ -8542,7 +8753,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
+@@ -8546,7 +8756,7 @@ imagemagick_load_image (struct frame *f, struct image *img,
    MagickWand *image_wand;
    PixelIterator *iterator;
    PixelWand **pixels, *bg_wand = NULL;
@@ -304,7 +302,7 @@ index 37416c1..986e259 100644
    Lisp_Object image;
    Lisp_Object value;
    Lisp_Object crop;
-@@ -8945,6 +9156,11 @@ and `imagemagick-types-inhibit'.  */)
+@@ -8978,6 +9188,11 @@ and `imagemagick-types-inhibit'.  */)
    char **imtypes;
    size_t i;
  
@@ -316,14 +314,14 @@ index 37416c1..986e259 100644
    ex = AcquireExceptionInfo ();
    imtypes = GetMagickList ("*", &numf, ex);
    DestroyExceptionInfo (ex);
-@@ -9959,17 +10175,21 @@ non-numeric, there is no explicit limit on the size of images.  */);
+@@ -10007,17 +10222,21 @@ non-numeric, there is no explicit limit on the size of images.  */);
  #if defined (HAVE_IMAGEMAGICK)
    DEFSYM (Qimagemagick, "imagemagick");
    ADD_IMAGE_TYPE (Qimagemagick);
-+  #ifdef WINDOWSNT
++#ifdef WINDOWSNT
 +  DEFSYM (Qmagickwand, "magickwand");
 +  DEFSYM (Qmagickcore, "magickcore");
-+  #endif /* WINDOWSNT */
++#endif /* WINDOWSNT */
  #endif
  
  #if defined (HAVE_RSVG)

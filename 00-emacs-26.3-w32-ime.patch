@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index 256b954..9346236 100644
+index ebf24c8..d0b2d7d 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -368,6 +368,10 @@ AC_ARG_WITH([ns],[AS_HELP_STRING([--with-ns],
@@ -13,7 +13,7 @@ index 256b954..9346236 100644
  OPTION_DEFAULT_ON([gpm],[don't use -lgpm for mouse support on a GNU/Linux console])
  OPTION_DEFAULT_ON([dbus],[don't compile with D-Bus support])
  AC_ARG_WITH([gconf],[AS_HELP_STRING([--with-gconf],
-@@ -5345,6 +5349,42 @@ else
+@@ -5351,6 +5355,42 @@ else
    ACL_SUMMARY=no
  fi
  
@@ -56,7 +56,7 @@ index 256b954..9346236 100644
  emacs_standard_dirs='Standard dirs'
  AS_ECHO(["
  Configured for '${canonical}'.
-@@ -5387,6 +5427,10 @@ for opt in XAW3D XPM JPEG TIFF GIF PNG RSVG CAIRO IMAGEMAGICK SOUND GPM DBUS \
+@@ -5394,6 +5434,10 @@ for opt in XAW3D XPM JPEG TIFF GIF PNG RSVG CAIRO IMAGEMAGICK SOUND GPM DBUS \
      AS_VAR_APPEND([emacs_config_features], ["$optsep$opt"])
      optsep=' '
  done
@@ -67,7 +67,7 @@ index 256b954..9346236 100644
  AC_DEFINE_UNQUOTED(EMACS_CONFIG_FEATURES, "${emacs_config_features}",
    [Summary of some of the main features enabled by configure.])
  
-@@ -5422,6 +5466,16 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -5429,6 +5473,16 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
    Does Emacs have threading support in lisp?              ${threads_enabled}
  "])
  
@@ -86,7 +86,7 @@ index 256b954..9346236 100644
  fi
 diff --git a/lisp/international/w32-ime.el b/lisp/international/w32-ime.el
 new file mode 100644
-index 0000000..f7eac6f
+index 0000000..0635817
 --- /dev/null
 +++ b/lisp/international/w32-ime.el
 @@ -0,0 +1,201 @@
@@ -162,7 +162,7 @@ index 0000000..f7eac6f
 +	     `(cond
 +		((and (ime-get-mode)
 +		      (equal current-input-method "W32-IME"))
-+ 		 (ime-force-off)
++		 (ime-force-off)
 +		 (unwind-protect
 +		     (apply ',original-function arguments)
 +		   (when (and (not (ime-get-mode))
@@ -292,7 +292,7 @@ index 0000000..f7eac6f
 +
 +(provide 'w32-ime)
 diff --git a/lisp/language/japan-util.el b/lisp/language/japan-util.el
-index 19ef063..e31ccd3 100644
+index fd27ae2..1012834 100644
 --- a/lisp/language/japan-util.el
 +++ b/lisp/language/japan-util.el
 @@ -31,9 +31,11 @@
@@ -310,7 +310,7 @@ index 19ef063..e31ccd3 100644
  
  (defconst japanese-kana-table
 diff --git a/lisp/loadup.el b/lisp/loadup.el
-index 5ecfae1..ec55f48 100644
+index 9e5502d..10cb350 100644
 --- a/lisp/loadup.el
 +++ b/lisp/loadup.el
 @@ -283,6 +283,7 @@
@@ -322,10 +322,10 @@ index 5ecfae1..ec55f48 100644
          (load "w32-fns")
          (load "ls-lisp")
 diff --git a/lisp/startup.el b/lisp/startup.el
-index 9d16b59..ee26947 100644
+index 32051c2..4e42a4f 100644
 --- a/lisp/startup.el
 +++ b/lisp/startup.el
-@@ -596,6 +596,8 @@ It is the default value of the variable `top-level'."
+@@ -604,6 +604,8 @@ It is the default value of the variable `top-level'."
      ;; `user-full-name' is now known; reset its standard-value here.
      (put 'user-full-name 'standard-value
  	 (list (default-value 'user-full-name)))
@@ -335,10 +335,10 @@ index 9d16b59..ee26947 100644
      (let ((pwd (getenv "PWD")))
        (and (stringp pwd)
 diff --git a/src/frame.c b/src/frame.c
-index 0a6ca26..05a8e55 100644
+index 0892530..835a1aa 100644
 --- a/src/frame.c
 +++ b/src/frame.c
-@@ -3585,6 +3585,9 @@ static const struct frame_parm_table frame_parms[] =
+@@ -3586,6 +3586,9 @@ static const struct frame_parm_table frame_parms[] =
    {"ns-appearance",		SYMBOL_INDEX (Qns_appearance)},
    {"ns-transparent-titlebar",	SYMBOL_INDEX (Qns_transparent_titlebar)},
  #endif
@@ -348,7 +348,7 @@ index 0a6ca26..05a8e55 100644
  };
  
  #ifdef HAVE_WINDOW_SYSTEM
-@@ -5768,6 +5771,9 @@ syms_of_frame (void)
+@@ -5769,6 +5772,9 @@ syms_of_frame (void)
    DEFSYM (Qtop_only, "top-only");
    DEFSYM (Qiconify_top_level, "iconify-top-level");
    DEFSYM (Qmake_invisible, "make-invisible");
@@ -359,10 +359,10 @@ index 0a6ca26..05a8e55 100644
    {
      int i;
 diff --git a/src/keyboard.c b/src/keyboard.c
-index e62dd0e..0a2a797 100644
+index aa34484..4d6078a 100644
 --- a/src/keyboard.c
 +++ b/src/keyboard.c
-@@ -4720,7 +4720,11 @@ const char *const lispy_function_keys[] =
+@@ -4730,7 +4730,11 @@ const char *const lispy_function_keys[] =
      "junja",          /* VK_JUNJA          0x17 */
      "final",          /* VK_FINAL          0x18 */
      "kanji",          /* VK_KANJI/VK_HANJA 0x19 */
@@ -374,7 +374,7 @@ index e62dd0e..0a2a797 100644
      "escape",         /* VK_ESCAPE         0x1B */
      "convert",        /* VK_CONVERT        0x1C */
      "non-convert",    /* VK_NONCONVERT     0x1D */
-@@ -8907,6 +8911,12 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
+@@ -8917,6 +8921,12 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
  {
    ptrdiff_t count = SPECPDL_INDEX ();
  
@@ -387,7 +387,7 @@ index e62dd0e..0a2a797 100644
    /* How many keys there are in the current key sequence.  */
    int t;
  
-@@ -9024,6 +9034,12 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
+@@ -9034,6 +9044,12 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
       keybuf[0..mock_input] holds the sequence we should reread.  */
   replay_sequence:
  
@@ -400,7 +400,7 @@ index e62dd0e..0a2a797 100644
    starting_buffer = current_buffer;
    first_unbound = bufsize + 1;
  
-@@ -9103,6 +9119,16 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
+@@ -9113,6 +9129,16 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
  	  goto replay_sequence;
  	}
  
@@ -417,7 +417,7 @@ index e62dd0e..0a2a797 100644
        if (t >= bufsize)
  	error ("Key sequence too long");
  
-@@ -9775,6 +9801,12 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
+@@ -9785,6 +9811,12 @@ read_key_sequence (Lisp_Object *keybuf, int bufsize, Lisp_Object prompt,
      ? Fcommand_remapping (read_key_sequence_cmd, Qnil, Qnil)
      : Qnil;
  
@@ -431,7 +431,7 @@ index e62dd0e..0a2a797 100644
    unbind_to (count, Qnil);
  
 diff --git a/src/w32fns.c b/src/w32fns.c
-index e50b7d5..df977f8 100644
+index f9060ce..d71089b 100644
 --- a/src/w32fns.c
 +++ b/src/w32fns.c
 @@ -56,6 +56,11 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
@@ -549,7 +549,7 @@ index e50b7d5..df977f8 100644
  
  static void
  add_system_logical_colors_to_map (Lisp_Object *system_colors)
-@@ -2382,6 +2443,8 @@ w32_createwindow (struct frame *f, int *coords)
+@@ -2387,6 +2448,8 @@ w32_createwindow (struct frame *f, int *coords)
  
    if (hwnd)
      {
@@ -558,7 +558,7 @@ index e50b7d5..df977f8 100644
        if (FRAME_SKIP_TASKBAR (f))
  	SetWindowLong (hwnd, GWL_EXSTYLE,
  		       GetWindowLong (hwnd, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
-@@ -2393,6 +2456,12 @@ w32_createwindow (struct frame *f, int *coords)
+@@ -2398,6 +2461,12 @@ w32_createwindow (struct frame *f, int *coords)
        SetWindowLong (hwnd, WND_HSCROLLBAR_INDEX, FRAME_SCROLL_BAR_AREA_HEIGHT (f));
        SetWindowLong (hwnd, WND_BACKGROUND_INDEX, FRAME_BACKGROUND_PIXEL (f));
  
@@ -571,7 +571,7 @@ index e50b7d5..df977f8 100644
        /* Enable drag-n-drop.  */
        DragAcceptFiles (hwnd, TRUE);
  
-@@ -4413,6 +4482,24 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+@@ -4418,6 +4487,24 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
  	  TranslateMessage (&windows_msg);
  	  goto dflt;
  	}
@@ -596,7 +596,7 @@ index e50b7d5..df977f8 100644
        /* Fall through */
        FALLTHROUGH;
  
-@@ -4432,6 +4519,7 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+@@ -4437,6 +4524,7 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
  				w32_get_key_modifiers (wParam, lParam));
        break;
  
@@ -604,7 +604,7 @@ index e50b7d5..df977f8 100644
      case WM_UNICHAR:
        /* WM_UNICHAR looks promising from the docs, but the exact
  	 circumstances in which TranslateMessage sends it is one of those
-@@ -4556,6 +4644,7 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+@@ -4561,6 +4649,7 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
      case WM_IME_ENDCOMPOSITION:
        ignore_ime_char = 0;
        goto dflt;
@@ -612,7 +612,7 @@ index e50b7d5..df977f8 100644
  
        /* Simulate middle mouse button events when left and right buttons
  	 are used together, but only if user has two button mouse. */
-@@ -5374,8 +5463,89 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+@@ -5379,8 +5468,89 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
      case WM_EMACS_FILENOTIFY:
        my_post_msg (&wmsg, hwnd, msg, wParam, lParam);
        return 1;
@@ -702,7 +702,7 @@ index e50b7d5..df977f8 100644
        /* Check for messages registered at runtime. */
        if (msg == msh_mousewheel)
  	{
-@@ -5666,6 +5836,10 @@ x_default_font_parameter (struct frame *f, Lisp_Object parms)
+@@ -5671,6 +5841,10 @@ x_default_font_parameter (struct frame *f, Lisp_Object parms)
  					Qnil));
      }
    x_default_parameter (f, parms, Qfont, font, "font", "Font", RES_TYPE_STRING);
@@ -713,10 +713,11 @@ index e50b7d5..df977f8 100644
  }
  
  DEFUN ("x-create-frame", Fx_create_frame, Sx_create_frame,
-@@ -8150,6 +8324,992 @@ DEFUN ("system-move-file-to-trash", Fsystem_move_file_to_trash,
+@@ -8169,6 +8343,992 @@ DEFUN ("system-move-file-to-trash", Fsystem_move_file_to_trash,
+ 
  #endif /* WINDOWSNT */
  
- 
++
 +/***********************************************************************
 +			  Input Method Editor
 + ***********************************************************************/
@@ -1702,11 +1703,10 @@ index e50b7d5..df977f8 100644
 +
 +#endif /* USE_W32_IME */
 +
-+
+ 
  /***********************************************************************
  			 w32 specialized functions
-  ***********************************************************************/
-@@ -10359,6 +11519,9 @@ frame_parm_handler w32_frame_parm_handlers[] =
+@@ -10379,6 +11539,9 @@ frame_parm_handler w32_frame_parm_handlers[] =
    x_set_fullscreen,
    x_set_font_backend,
    x_set_alpha,
@@ -1716,7 +1716,7 @@ index e50b7d5..df977f8 100644
    0, /* x_set_sticky */
    0, /* x_set_tool_bar_position */
    0, /* x_set_inhibit_double_buffering */
-@@ -10381,6 +11544,10 @@ syms_of_w32fns (void)
+@@ -10401,6 +11564,10 @@ syms_of_w32fns (void)
    w32_visible_system_caret_hwnd = NULL;
  
    DEFSYM (Qundefined_color, "undefined-color");
@@ -1727,7 +1727,7 @@ index e50b7d5..df977f8 100644
    DEFSYM (Qcancel_timer, "cancel-timer");
    DEFSYM (Qhyper, "hyper");
    DEFSYM (Qsuper, "super");
-@@ -10727,6 +11894,27 @@ tip frame.  */);
+@@ -10747,6 +11914,27 @@ tip frame.  */);
  	       doc: /* Non-nil means don't display the abort dialog when aborting.  */);
    w32_disable_abort_dialog = 0;
  
@@ -1755,7 +1755,7 @@ index e50b7d5..df977f8 100644
  #if 0 /* TODO: Port to W32 */
    defsubr (&Sx_change_window_property);
    defsubr (&Sx_delete_window_property);
-@@ -10781,6 +11969,18 @@ tip frame.  */);
+@@ -10801,6 +11989,18 @@ tip frame.  */);
    defsubr (&Sw32_notification_close);
  #endif
  
@@ -1774,7 +1774,7 @@ index e50b7d5..df977f8 100644
  #ifdef WINDOWSNT
    defsubr (&Sfile_system_info);
    defsubr (&Sdefault_printer_name);
-@@ -11056,6 +12256,7 @@ globals_of_w32fns (void)
+@@ -11076,6 +12276,7 @@ globals_of_w32fns (void)
    get_title_bar_info_fn = (GetTitleBarInfo_Proc)
      GetProcAddress (user32_lib, "GetTitleBarInfo");
  
@@ -1782,7 +1782,7 @@ index e50b7d5..df977f8 100644
    {
      HMODULE imm32_lib = GetModuleHandle ("imm32.dll");
      get_composition_string_fn = (ImmGetCompositionString_Proc)
-@@ -11067,6 +12268,7 @@ globals_of_w32fns (void)
+@@ -11087,6 +12288,7 @@ globals_of_w32fns (void)
      set_ime_composition_window_fn = (ImmSetCompositionWindow_Proc)
        GetProcAddress (imm32_lib, "ImmSetCompositionWindow");
    }
@@ -1791,7 +1791,7 @@ index e50b7d5..df977f8 100644
    except_code = 0;
    except_addr = 0;
 diff --git a/src/w32font.c b/src/w32font.c
-index 9cbc3ee..c9825a1 100644
+index 0570d2a..3a16c56 100644
 --- a/src/w32font.c
 +++ b/src/w32font.c
 @@ -52,7 +52,9 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
@@ -1817,7 +1817,7 @@ index 9cbc3ee..c9825a1 100644
  {
    Lisp_Object tmp, extra;
 diff --git a/src/w32font.h b/src/w32font.h
-index 5c216cb..910c9c4 100644
+index 65f42a3..f16ca50 100644
 --- a/src/w32font.h
 +++ b/src/w32font.h
 @@ -83,6 +83,9 @@ int w32font_draw (struct glyph_string *s, int from, int to,
@@ -1831,7 +1831,7 @@ index 5c216cb..910c9c4 100644
  extern void globals_of_w32font (void);
  
 diff --git a/src/w32term.c b/src/w32term.c
-index 611b7c6..cb6e360 100644
+index dbaf105..56e50fb 100644
 --- a/src/w32term.c
 +++ b/src/w32term.c
 @@ -5499,6 +5499,79 @@ w32_read_socket (struct terminal *terminal,
@@ -1927,7 +1927,7 @@ index 611b7c6..cb6e360 100644
  
  	  /* If the size of the active cursor changed, destroy the old
  	     system caret.  */
-@@ -7315,6 +7393,9 @@ w32_initialize (void)
+@@ -7318,6 +7396,9 @@ w32_initialize (void)
      horizontal_scroll_bar_left_border = horizontal_scroll_bar_right_border
        = GetSystemMetrics (SM_CYHSCROLL);
    }
@@ -1938,7 +1938,7 @@ index 611b7c6..cb6e360 100644
  
  void
 diff --git a/src/w32term.h b/src/w32term.h
-index e500b73..38aa91a 100644
+index 9a6c358..4fb198f 100644
 --- a/src/w32term.h
 +++ b/src/w32term.h
 @@ -619,6 +619,8 @@ do { \
@@ -2057,7 +2057,7 @@ index e500b73..38aa91a 100644
 +extern void w32_ime_control_init (void);
 +#endif /* USE_W32_IME */
 diff --git a/src/window.c b/src/window.c
-index e6d0280..1a7f4b8 100644
+index 4d5ddee..41ce934 100644
 --- a/src/window.c
 +++ b/src/window.c
 @@ -467,6 +467,10 @@ selected windows appears and to which many commands apply.  */)
@@ -2093,7 +2093,7 @@ index e6d0280..1a7f4b8 100644
    return window;
  }
  
-@@ -3608,6 +3620,12 @@ This function runs `window-scroll-functions' before running
+@@ -3613,6 +3625,12 @@ This function runs `window-scroll-functions' before running
  
    set_window_buffer (window, buffer, true, !NILP (keep_margins));
  
@@ -2106,7 +2106,7 @@ index e6d0280..1a7f4b8 100644
    return Qnil;
  }
  
-@@ -7540,6 +7558,10 @@ syms_of_window (void)
+@@ -7576,6 +7594,10 @@ syms_of_window (void)
    Fput (Qscroll_down, Qscroll_command, Qt);
  
    DEFSYM (Qwindow_configuration_change_hook, "window-configuration-change-hook");
@@ -2117,7 +2117,7 @@ index e6d0280..1a7f4b8 100644
    DEFSYM (Qwindowp, "windowp");
    DEFSYM (Qwindow_configuration_p, "window-configuration-p");
    DEFSYM (Qwindow_live_p, "window-live-p");
-@@ -7632,6 +7654,17 @@ selected; while the global value is run only once for the modified frame,
+@@ -7668,6 +7690,17 @@ selected; while the global value is run only once for the modified frame,
  with the relevant frame selected.  */);
    Vwindow_configuration_change_hook = Qnil;
  
