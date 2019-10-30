@@ -13,7 +13,7 @@
 
 このリポジトリに含まれるパッチは、以下の二つの情報由来のものです。Emacs 26.3のソースに適用できるように作成してあります。
 
-- [[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][abount patches and how to build emacs on Windows. (Japanese)]] :: 日本語Windows向けのIMEパッチやcmigemoを組み込むためのパッチ情報と、Windows上でemacsをコンパイルして使うための情報が丁寧に記されています。
+- [[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][about patches and how to build emacs on Windows. (Japanese)]] :: 日本語Windows向けのIMEパッチやcmigemoを組み込むためのパッチ情報と、Windows上でemacsをコンパイルして使うための情報が丁寧に記されています。
 - [[https://github.com/m-parashar/emax64][emax64]] :: ImageMagick 7に対応したWindows版emacsが公開されています。[[https://github.com/politza/pdf-tools][pdf-tools]]も動作します。
 
 ** 00-emacs-26.3-w32-ime.patch
@@ -69,3 +69,7 @@ ImageMagick 7をサポートするためのパッチ。[[https://github.com/m-pa
 * ビルド方法
 
 ビルド方法については、[[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][abount patches and how to build emacs on Windows. (Japanese)]]や[[https://github.com/chuntaro/NTEmacs64]]に詳しく書いてありますが、[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][こちら]]にも簡単に記します。日本の組織内では、プロキシを経由するネット環境が多いと思います。そういう環境の方にもつまずきが少なくなるように書きました。64bit環境を想定しています。
+
+* Windows上のemacsを使用するときに、同時に設定しておくと便利かもしれないもの
+
+[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/MISC.org][こちら]]にまとめました。

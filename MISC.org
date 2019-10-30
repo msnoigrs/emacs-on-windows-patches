@@ -1,0 +1,99 @@
+#+TITLE: Misc Settings
+#+AUTHOR: Masanao Igarashi
+#+EMAIL: syoux2@gmail.com
+#+DATE: 2019/10/23
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE: ja
+#+OPTIONS: H:4 num:nil toc:nil ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
+#+OPTIONS: author:t creator:nil email:nil date:t
+
+* Windows上のemacsを使用するときに、同時に設定しておくと便利かもしれないもの
+
+** MyricaMフォント
+
+私はエディタで使用するフォントには、日本語フォントはM+ fonts由来、ASCIIフォントはInconsolataが好きなので、MyricaMフォントを使うことが多いです。
+
+以下の文書に記載されているフォントファイルをダウンロードして、Windowsにインストールします。
+
+https://github.com/tomokuni/Myrica/blob/master/product/Myrica.md
+
+#+BEGIN_EXAMPLE
+% wget https://github.com/tomokuni/Myrica/raw/master/product/MyricaM.zip
+#+END_EXAMPLE
+
+展開して、Myrica.TTCをエクスプローラーで右クリックしてインストールしてください。
+
+** Google日本語入力
+
+google謹製IMEをインストールします。
+
+https://www.google.co.jp/ime/
+
+以下のgistにあるキー設定を行います。mozcでの設定例ですが、Google日本語入力においても有効です。
+
+https://gist.github.com/msnoigrs/fb1c08a2580704966556364ef558c634
+
+設定画面は、一般にはタスクバーにあるGoogle日本語入力のアイコンから開くことができます。もし見つけられない場合は、以下を試してください。
+
+#+BEGIN_EXAMPLE
+> "C:\Program Files (x86)\Google\Google Japanese Input\GoogleIMEJaTool.exe" --mode=config_dialog
+#+END_EXAMPLE
+
+** Ctrl+Shiftや右Alt+Shiftのホットキーを解除
+
+#+BEGIN_QUOTE
+Windowsの設定 左側「地域と言語」選択
+「キーボードの詳細設定」
+「言語バーのオプション」
+「テキストサービスと入力言語」画面が表示される。
+「キーの詳細設定」タブ
+「キーシーケンスの変更(C)...」を選択して
+「入力言語を切り替える」を(なし)に
+#+END_QUOTE
+
+** AutoHotkey
+
+後述する StartEmacs.exe や、IMEをON/OFFするキーバインドを変更するために使用します。以下から最新のものをダウンロードして、インストールします。
+
+https://github.com/Lexikos/AutoHotkey_L/releases
+
+AutoHotkeyには、ahkファイルからexeファイルを生成するツール（Ahk2Exe.exe）が含まれています。
+
+exeファイルを生成するには、コマンドライン上でAhk2Exe.exeに引数を指定して実行します。ちなみに、Ahk2Exe.exeを引数なしで実行するとGUIモードで起動します。その画面を操作をすることでもexeファイルを生成できます。
+
+** StartEmacs
+
+以下の機能を実現するexeファイルをセットアップします。
+
+- emacsから参照可能な外部コマンドを調整するために、PATH環境変数をemacs実行前に設定する
+- デスクトップ上のショートカットアイコンにファイルをドロップすると、そのファイルをemacsで開く
+- emacsを二重起動せず、すでに起動されている場合はそのemacsを使用する
+- (オプション) 右クリックメニューにemacsから開くメニューを追加
+
+詳しくは https://github.com/msnoigrs/startemacs を参照してください。
+
+** IMEのON/OFFのホットキー設定
+
+私は、以下のホットキーを設定して使っています。
+
+- 右Shiftキーを単体で押すと、IMEをON
+- 左Shiftキーを単体で押すと、IMEをOFF
+- Ctrl+BackslashでIMEのON/OFFをトグル
+
+詳しくは [[https://github.com/msnoigrs/customhkwin]] を参照してください。
+
+** Ctrl2Cap
+
+Aキーの左隣のキーがCtrlじゃないキーボードを使用する場合、私にはこれが必須です。
+
+[[https://docs.microsoft.com/en-us/sysinternals/downloads/ctrl2cap]]
+
+** msys2で予めインストールしておく
+
+#+BEGIN_EXAMPLE
+% pacman -S mingw-w64-x86_64-libgit2
+% pacman -S p7zip
+% pacman -S unzip
+#+END_EXAMPLE
