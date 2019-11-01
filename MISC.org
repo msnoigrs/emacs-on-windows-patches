@@ -80,7 +80,6 @@ exeファイルを生成するには、コマンドライン上でAhk2Exe.exeに
 
 - 右Shiftキーを単体で押すと、IMEをON
 - 左Shiftキーを単体で押すと、IMEをOFF
-- Ctrl+BackslashでIMEのON/OFFをトグル
 
 詳しくは [[https://github.com/msnoigrs/customhkwin]] を参照してください。
 
