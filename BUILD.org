@@ -17,7 +17,7 @@ GNU Emacsのビルド方法については、[[https://gist.github.com/rzl24ozi/
 
 MSYS2のインストーラーを[[http://www.msys2.org/]]からダウンロードします。
 
-インストールが終わると、スタートメニューには以下の３つが追加されます。
+インストールが終わると、スタートメニューには以下の３つが追加されます。（最近はUCRT版もインストールされる）
 
 - MSYS2 MinGW 64-bit
 - MSYS2 MinGW 32-bit
@@ -31,21 +31,35 @@ MSYS2のインストーラーを[[http://www.msys2.org/]]からダウンロー�
 
 プロキシを経由して外部に接続する環境において、MSYS2の更新を行うための設定です。必要なければ、読み飛ばしてください。
 
-メニューからMSYS2 MSYSを起動し、 =pacman= の設定ファイルを編集します。
+以下の内容で =/etc/profile.d/proxy.sh= ファイルを準備します。
+
+#+BEGIN_EXAMPLE
+PROXY="プロキシのIP:ポート番号"
+export http_proxy="http://${PROXY}"
+export https_proxy="http://${PROXY}"
+export HTTP_PROXY="http://${PROXY}"
+export HTTPS_PROXY="http://${PROXY}"
+
+range0=$(echo ローカルIP.ローカルIP.ローカルIP.{1..255})
+export no_proxy=127.0.0.1,localhost,${range0// /,}
+export NO_PROXY=${no_proxy}
+#+END_EXAMPLE
+
+不幸にも中間者攻撃型のプロキシ環境の中にいて、偽ルート証明書がインストールされている場合は、=pacman= の設定ファイルを編集し、証明書確認処理をオフにします。
 
 #+BEGIN_EXAMPLE
 $ vim /etc/pacman.conf
 #+END_EXAMPLE
 
-=XferCommand= の行を探し、 =curl= の =-x= オプションにプロキシの情報を追記します。
+=XferCommand= の行を探し、 =wget= に =--no-check-certificate= オプションを追加します。
 
 #+BEGIN_EXAMPLE
-XferCommand = /usr/bin/curl -x http://プロキシホスト名:ポート番号 -C - -f %u > %o
+XferCommand = /usr/bin/wget --no-check-certificate --passive-ftp -c -O %o %u
 #+END_EXAMPLE
 
 Windowsのエディタで編集する場合、 =C:\msys64\etc\pacman.conf= を編集してください。
 
-プロキシのホスト名やポート番号の情報は、利用する環境に合わせてください。プロキシの設定方法は他にも様々ありますので、お好みの方法でかまいません。 =curl= ではなく =wget= を使う方法もあります。
+プロキシのホスト名やポート番号の情報は、利用する環境に合わせてください。プロキシの設定方法は他にも様々ありますので、お好みの方法でかまいません。
 
 ** MSYSやMinGWの更新
 
@@ -96,7 +110,8 @@ $ pacman -S --needed base-devel \
   mingw-w64-x86_64-jansson \
   mingw-w64-x86_64-libxml2 \
   mingw-w64-x86_64-gnutls \
-  mingw-w64-x86_64-zlib
+  mingw-w64-x86_64-zlib \
+  mingw-w64-x86_64-libgccjit
 #+END_EXAMPLE
 
 =git= もインストールします。
@@ -118,24 +133,13 @@ $ cd ~/emacs
 
 emacsのソースをダウンロードします。
 
-[[https://www.gnu.org/software/emacs/download.html][GNU Emacs Download - GNU Project]]からリンクをたどるか、
-=wget= や =curl= を使って取得します。(プロキシの設定が必要であれば
-
-JAISTから取得する例
+ここではgithubのリポジトリからcloneしています。
 
 #+BEGIN_EXAMPLE
-$ wget http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.3.tar.xz
+$ git clone -b emacs-28 https://github.com/emacs-mirror/emacs
 #+END_EXAMPLE
 
-#+BEGIN_EXAMPLE
-$ curl -O http://ftp.jaist.ac.jp/pub/GNU/emacs/emacs-26.3.tar.xz
-#+END_EXAMPLE
-
-展開すると、 =emacs-26.3= ディレクトリの下にソースツリーができます。
-
-#+BEGIN_EXAMPLE
-$ tar xf emacs-26.3.tar.xz
-#+END_EXAMPLE
+=emacs= ディレクトリの下にソースツリーができます。
 
 本リポジトリのパッチを取得します。gitを使う例を示しますが、[[https://github.com/msnoigrs/emacs-on-windows-patches]]からブラウザを使ってダウンロードしてもかまいません。
 
@@ -148,11 +152,11 @@ gitにプロキシの設定が必要な場合は、[[https://gist.github.com/eva
 パッチを適用します。
 
 #+BEGIN_EXAMPLE
-$ patch -p1 < ../emacs-on-windows-patches/00-emacs-26.3-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/01-emacs-26.3-disable-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/02-emacs-26.3-dontusereg.patch
-$ patch -p1 < ../emacs-on-windows-patches/03-emacs-26.3-imagemagick7.patch
-$ patch -p1 < ../emacs-on-windows-patches/04-emacs-26.3-cmigemo.patch
+$ patch -p1 < ../emacs-on-windows-patches/00-emacs-28-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/01-emacs-28-disable-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/02-emacs-28-dontusereg.patch
+$ patch -p1 < ../emacs-on-windows-patches/03-emacs-28-cmigemo.patch
+$ patch -p1 < ../emacs-on-windows-patches/04-emacs-28-mingw32-remove-check.patch
 #+END_EXAMPLE
 
 これでパッチ済みのソースツリーができあがります。
@@ -165,8 +169,8 @@ nkfが後のcmigemoのビルド時に必要ですので、準備します。
 nkfのソースをダウンロードします。
 
 #+BEGIN_EXAMPLE
-$ wget http://iij.dl.osdn.jp/nkf/64158/nkf-2.1.4.tar.gz
-$ tar zxf nkf-2.1.4.tar.gz
+$ wget http://iij.dl.osdn.jp/nkf/70406/nkf-2.1.5.tar.gz
+$ tar zxf nkf-2.1.5.tar.gz
 #+END_EXAMPLE
 
 *** cmigemoソースツリーを展開(cmigemoを組み込む場合)
@@ -223,21 +227,21 @@ $ make mingw-install
 emacsをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd ~/emacs/emacs-26.3
+$ cd ~/emacs/emacs
 $ ./autogen.sh
-$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0' LDFLAGS='-s' ./configure --without-dbus --without-compress-install --with-modules
+$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0' LDFLAGS='-s' ./configure --with-native-compilation --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules
 $ make
-$ make install-strip prefix=/c/emacs-26.3
+$ make install-strip prefix=/c/emacs
 #+END_EXAMPLE
 
 CFLAGSの値やconfigureのオプションは、環境とお好みに合わせて変更してください。
-ここでは、staticビルドをしています。インストール先は、 =C:\emacs-26.3= にしています。
+ここでは、staticビルドをしています。インストール先は、 =C:\emacs= にしています。
 
 これでインストールは完了です。
 
 * emacsを起動してみる
 
-=C:\emacs-26.3\bin\runemacs.exe= を起動します。
+=C:\emacs\bin\runemacs.exe= を起動します。
 
 emacsから見たホームディレクトリ =~/= は、 =C:\Users\ログインユーザー名\AppData\Roaming= です。
 したがって設定ファイルの位置は =C:\Users\ログインユーザー名\AppData\Roaming\.emacs.d\init.el= です。

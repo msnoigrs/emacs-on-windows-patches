@@ -9,14 +9,15 @@
 #+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
 #+OPTIONS: author:t creator:nil email:nil date:t
 
-* GNU Emacs 26.3をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ
+* GNU Emacs 28.0.xをWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ
 
-このリポジトリに含まれるパッチは、以下の二つの情報由来のものです。Emacs 26.3のソースに適用できるように作成してあります。
+飛躍的に高速化したnative compileをするemacs、いわゆるgccemacsですが、Windowsでも自前でコンパイルすることで動作します。
+
+IMEやcmigemoに関するパッチは、以下の情報由来のものです。Emacs 28のソースに適用できるように作成してあります。
 
 - [[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][about patches and how to build emacs on Windows. (Japanese)]] :: 日本語Windows向けのIMEパッチやcmigemoを組み込むためのパッチ情報と、Windows上でemacsをコンパイルして使うための情報が丁寧に記されています。
-- [[https://github.com/m-parashar/emax64][emax64]] :: ImageMagick 7に対応したWindows版emacsが公開されています。[[https://github.com/politza/pdf-tools][pdf-tools]]も動作します。
 
-** 00-emacs-26.3-w32-ime.patch
+** 00-emacs-28-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/ee4457df2f54c5f3ca0d02b56e371233][emacs-26.1-rc1-w32-ime.diff]]と意味的に同じものです。
 
@@ -33,7 +34,7 @@ configureに以下のオプションを追加しています。\\
 --without-documentfeed : DOCUMENTFEED無効
 #+END_EXAMPLE
 
-** 01-emacs-26.3-disable-w32-ime.patch
+** 01-emacs-28-disable-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/da3370acb767096ce11fe867c6d9da6a][emacs-26.1-rc1-disable-w32-ime.diff]]と意味的に同じものです。
 
@@ -47,15 +48,11 @@ configureに以下のオプションを追加しています。\\
 (w32-ime-disabled-p) ; IMEが無効化されている場合 t を返す
 #+END_EXAMPLE
 
-** 02-emacs-26.3-dontusereg.patch
+** 02-emacs-28-dontusereg.patch
 
-addpm.exeの処理において各種パスのレジストリ登録処理を省きます。addpm.exeにはスタートメニューにemacsのショートカットを作成するといった機能があります。[[https://github.com/m-parashar/emax64][emax64]]由来です。
+addpm.exeの処理において各種パスのレジストリ登録処理を省きます。addpm.exeにはスタートメニューにemacsのショートカットを作成するといった機能があります。
 
-** 03-emacs-26.3-imagemagick7.patch
-
-ImageMagick 7をサポートするためのパッチ。[[https://github.com/m-parashar/emax64][emax64]]由来です。
-
-** 04-emacs-26.3-cmigemo.patch
+** 03-emacs-28-cmigemo.patch
 
 [[https://gist.github.com/37317c89325bfb3f02f4142c5764b7b5][emacs-26.1-rc1-cmigemo.diff]]と意味的に同じものです。
 
@@ -66,10 +63,14 @@ ImageMagick 7をサポートするためのパッチ。[[https://github.com/m-pa
 
 私はこのcmigemo組み込みパッチを好んで使っていますが、他に同rzl24ozi氏による[[https://github.com/rzl24ozi/cmigemo-module][dynamic module版]]を使う方法もあります。
 
+** 04-emacs-28-mingw32-remove-check.patch
+
+=configure= においてgccjitやimagemagickの存在確認チェック処理を無効にするパッチです。存在確認チェック処理が正しく機能しないため、=--with-native-compilation= や =--with-imagemagick= を付した =configure= が止まってしまいます。(2021-12-15 時点)それを回避します。
+
 * ビルド方法
 
-ビルド方法については、[[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][abount patches and how to build emacs on Windows. (Japanese)]]や[[https://github.com/chuntaro/NTEmacs64]]に詳しく書いてありますが、[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][こちら]]にも簡単に記します。日本の組織内では、プロキシを経由するネット環境が多いと思います。そういう環境の方にもつまずきが少なくなるように書きました。64bit環境を想定しています。
+ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。日本の組織内では、プロキシを経由するネット環境が多いと思います。そういう環境の方にもつまずきが少なくなるように書きました。64bit環境を想定しています。
 
 * Windows上のemacsを使用するときに、同時に設定しておくと便利かもしれないもの
 
-[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/MISC.org][こちら]]にまとめました。
+[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/MISC.org][MISC.org]]にまとめました。

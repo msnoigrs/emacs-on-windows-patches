@@ -11,9 +11,13 @@
 
 * Windows上のemacsを使用するときに、同時に設定しておくと便利かもしれないもの
 
-** MyricaMフォント
+** Cicaフォント
 
-私はエディタで使用するフォントには、日本語フォントはM+ fonts由来、ASCIIフォントはInconsolataが好きなので、MyricaMフォントを使うことが多いです。
+日本語フォントがM+ fonts由来で、Windowsで使っても綺麗な表示。Cicaフォントをインストールします。
+
+https://github.com/miiton/Cica
+
+** MyricaMフォント
 
 以下の文書に記載されているフォントファイルをダウンロードして、Windowsにインストールします。
 
@@ -96,3 +100,21 @@ Aキーの左隣のキーがCtrlじゃないキーボードを使用する場合
 % pacman -S p7zip
 % pacman -S unzip
 #+END_EXAMPLE
+
+** ligegit2
+
+magitで利用されるlibegit2をMinGW環境でビルドする方法。
+
+#+begin_example
+% pacman -S mingw64/mingw-w64-x86_64-cmake
+% git clone https://github.com/magit/libegit2
+% cd ligegit2
+% make EMACS=/c/emacs/bin/emacs.exe
+% cd build
+% cmake .. -DCMAKE_INSTALL_PREFIX=/mingw64
+% make install
+% cd ..
+% mkdir -p /c/emacs/share/emacs/site-lisp/libegit2/build
+% cp libgit.el libgit.elc /c/emacs/share/emacs/site-lisp/libegit2
+% cp libegit2.dll /c/emacs/share/emacs/site-lisp/libegit2/build
+#+end_example
