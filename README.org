@@ -65,7 +65,7 @@ addpm.exeの処理において各種パスのレジストリ登録処理を省�
 
 ** 04-emacs-28-mingw32-remove-check.patch
 
-=configure= においてgccjitやimagemagickの存在確認チェック処理を無効にするパッチです。存在確認チェック処理が正しく機能しないため、=--with-native-compilation= や =--with-imagemagick= を付した =configure= が止まってしまいます。(2021-12-15 時点)それを回避します。
+=configure= においてgccjitやimagemagickの存在確認チェック処理を無効にするパッチです。存在確認チェック処理が正しく機能しないため、 =--with-native-compilation= や =--with-imagemagick= を付した =configure= が止まってしまいます。(2021-12-15 時点)それを回避します。
 
 * ビルド方法
 
