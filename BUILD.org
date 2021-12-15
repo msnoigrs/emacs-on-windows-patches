@@ -45,7 +45,7 @@ export no_proxy=127.0.0.1,localhost,${range0// /,}
 export NO_PROXY=${no_proxy}
 #+END_EXAMPLE
 
-不幸にも中間者攻撃型のプロキシ環境の中にいて、偽ルート証明書がインストールされている場合は、=pacman= の設定ファイルを編集し、証明書確認処理をオフにします。
+不幸にも中間者攻撃型のプロキシ環境の中にいて、偽ルート証明書がインストールされている場合は、 =pacman= の設定ファイルを編集し、証明書確認処理をオフにします。
 
 #+BEGIN_EXAMPLE
 $ vim /etc/pacman.conf
