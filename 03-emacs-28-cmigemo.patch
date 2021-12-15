@@ -1,17 +1,16 @@
 diff --git a/configure.ac b/configure.ac
-index 7f221fa..179e2cc 100644
+index ca8d00a2de..ab94a6accc 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -383,6 +383,8 @@ OPTION_DEFAULT_ON([zlib],[don't compile with zlib decompression support])
- OPTION_DEFAULT_OFF([modules],[compile with dynamic modules support])
+@@ -490,6 +490,7 @@ OPTION_DEFAULT_ON([modules],[don't compile with dynamic modules support])
  OPTION_DEFAULT_ON([threads],[don't compile with elisp threading support])
- 
+ OPTION_DEFAULT_OFF([native-compilation],[compile with Emacs Lisp native compiler support])
+ OPTION_DEFAULT_OFF([cygwin32-native-compilation],[use native compilation on 32-bit Cygwin])
 +OPTION_DEFAULT_ON([cmigemo], [don't compile with CMIGEMO support])
-+
+ 
  AC_ARG_WITH([file-notification],[AS_HELP_STRING([--with-file-notification=LIB],
   [use a file notification library (LIB one of: yes, inotify, kqueue, gfile, w32, no)])],
-  [ case "${withval}" in
-@@ -3623,6 +3625,15 @@ fi
+@@ -3982,6 +3983,14 @@ fi
  AC_SUBST(LIBPNG)
  AC_SUBST(PNG_CFLAGS)
  
@@ -23,176 +22,32 @@ index 7f221fa..179e2cc 100644
 +  fi
 +fi
 +
-+
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -5410,7 +5421,7 @@ emacs_config_features=
- for opt in XAW3D XPM JPEG TIFF GIF PNG RSVG CAIRO IMAGEMAGICK SOUND GPM DBUS \
-   GCONF GSETTINGS GLIB NOTIFY ACL LIBSELINUX GNUTLS LIBXML2 FREETYPE M17N_FLT \
-   LIBOTF XFT ZLIB TOOLKIT_SCROLL_BARS X_TOOLKIT OLDXMENU X11 XDBE XIM \
--  NS MODULES THREADS XWIDGETS LIBSYSTEMD CANNOT_DUMP LCMS2; do
-+  NS MODULES CMIGEMO THREADS XWIDGETS LIBSYSTEMD CANNOT_DUMP LCMS2; do
+@@ -5949,7 +5958,7 @@ for opt in ACL CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTINGS \
+  M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PNG RSVG SECCOMP \
+  SOUND THREADS TIFF \
+  TOOLKIT_SCROLL_BARS UNEXEC X11 XAW3D XDBE XFT XIM XPM XWIDGETS X_TOOLKIT \
+- ZLIB; do
++ ZLIB CMIGEMO; do
  
      case $opt in
-       CANNOT_DUMP) eval val=\${$opt} ;;
-@@ -5468,6 +5479,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
-   Does Emacs use -lsystemd?                               ${HAVE_LIBSYSTEMD}
+       PDUMPER) val=${with_pdumper} ;;
+@@ -6021,6 +6030,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+   Does Emacs use the GMP library?                         ${HAVE_GMP}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}
 +  Does Emacs use a cmigemo library?                       ${HAVE_CMIGEMO}
    Does Emacs use toolkit scroll bars?                     ${USE_TOOLKIT_SCROLL_BARS}
-   Does Emacs support Xwidgets (requires gtk3)?            ${HAVE_XWIDGETS}
+   Does Emacs support Xwidgets?                            ${HAVE_XWIDGETS}
    Does Emacs have threading support in lisp?              ${threads_enabled}
-diff --git a/site-lisp/cmigemo.el b/site-lisp/cmigemo.el
-new file mode 100644
-index 0000000..e316d4d
---- /dev/null
-+++ b/site-lisp/cmigemo.el
-@@ -0,0 +1,101 @@
-+(defvar migemo-directory
-+      (if (eq system-type 'windows-nt)
-+	  (concat data-directory "migemo")
-+	"/usr/local/share/migemo"))
-+(defvar migemo-dictionary
-+      (expand-file-name "utf-8/migemo-dict" migemo-directory))
-+(defvar migemo-user-dictionary nil)
-+(defvar migemo-regex-dictionary nil)
-+
-+(require 'migemo)
-+(unless (fboundp 'cmigemo-open)
-+  (require 'cmigemo-module))
-+
-+(defvar cmigemo-initialized nil)
-+
-+; modified migemo-init
-+(defun cmigemo-init ()
-+  (when (and migemo-use-frequent-pattern-alist
-+	     migemo-frequent-pattern-alist-file
-+	     (null migemo-frequent-pattern-alist))
-+    (setq migemo-frequent-pattern-alist
-+	  (migemo-pattern-alist-load migemo-frequent-pattern-alist-file)))
-+  (when (and migemo-use-pattern-alist
-+	     migemo-pattern-alist-file
-+	     (null migemo-pattern-alist))
-+    (setq migemo-pattern-alist
-+	  (migemo-pattern-alist-load migemo-pattern-alist-file)))
-+  (when (and migemo-use-default-isearch-keybinding
-+             migemo-register-isearch-keybinding-function)
-+    (funcall migemo-register-isearch-keybinding-function))
-+  ;; begin modification for cmigemo
-+  (if (fboundp 'cmigemo-open)
-+      (when (not cmigemo-initialized)
-+	(setq cmigemo-initialized
-+	      (cmigemo-open migemo-dictionary))
-+        (when migemo-user-dictionary
-+	  (if (consp migemo-user-dictionary)
-+	      (dolist (d migemo-user-dictionary)
-+	        (cmigemo-load d))
-+	    (cmigemo-load migemo-user-dictionary))))))
-+  ;; end modification for cmigemo
-+
-+; modified migemo-get-pattern
-+(defun cmigemo-get-pattern (word)
-+  (cond
-+   ((< (length word) migemo-isearch-min-length)
-+    "")
-+   (t
-+    (let (deactivate-mark pattern freq alst)
-+      (set-text-properties 0 (length word) nil word)
-+      (migemo-init)
-+      (when (and migemo-pre-conv-function
-+		 (functionp migemo-pre-conv-function))
-+	(setq word (funcall migemo-pre-conv-function word)))
-+      (setq pattern
-+	    (cond
-+	     ((setq freq (and migemo-use-frequent-pattern-alist
-+			      (assoc word migemo-frequent-pattern-alist)))
-+	      (cdr freq))
-+	     ((setq alst (and migemo-use-pattern-alist
-+			      (assoc word migemo-pattern-alist)))
-+	      (setq migemo-pattern-alist (cons alst (delq alst migemo-pattern-alist)))
-+	      (cdr alst))
-+	     (t
-+              ;; begin modification for cmigemo
-+	      (if (fboundp 'cmigemo-open)
-+		  (setq pattern (cmigemo-query word)))
-+              ;; end modification for cmigemo
-+	      (when (and (memq system-type '(windows-nt OS/2 emx))
-+			 (> (length pattern) 1)
-+			 (eq ?\r (aref pattern (1- (length pattern)))))
-+		(setq pattern (substring pattern 0 -1)))
-+	      (when migemo-use-pattern-alist
-+		(setq migemo-pattern-alist
-+		      (cons (cons word pattern) migemo-pattern-alist))
-+		(when (and migemo-pattern-alist-length
-+			   (> (length migemo-pattern-alist)
-+			      (* migemo-pattern-alist-length 2)))
-+		  (setcdr (nthcdr (1- (* migemo-pattern-alist-length 2))
-+				  migemo-pattern-alist) nil)))
-+	      pattern)))
-+      (if (and migemo-after-conv-function
-+	       (functionp migemo-after-conv-function))
-+	  (funcall migemo-after-conv-function word pattern)
-+	(migemo-replace-in-string pattern "\a" migemo-white-space-regexp))))))
-+
-+; modified migemo-kill
-+(defun cmigemo-kill ()
-+  (interactive)
-+  ;; begin modification for cmigemo
-+  (if (fboundp 'cmigemo-open)
-+      (when cmigemo-initialized
-+	(cmigemo-close)
-+	(setq cmigemo-initialized nil))))
-+  ;; end modification for cmigemo
-+
-+(advice-add 'migemo-init        :override #'cmigemo-init)
-+(advice-add 'migemo-get-pattern :override #'cmigemo-get-pattern)
-+(advice-add 'migemo-kill        :override #'cmigemo-kill)
-+
-+(provide 'cmigemo)
-diff --git a/site-lisp/migemo-isearch-auto-enable.el b/site-lisp/migemo-isearch-auto-enable.el
-new file mode 100644
-index 0000000..6c00173
---- /dev/null
-+++ b/site-lisp/migemo-isearch-auto-enable.el
-@@ -0,0 +1,30 @@
-+(defconst coding-system-for-japanese
-+  (let ((cs (cdr (assoc 'coding-system
-+			(assoc  "Japanese" language-info-alist)))))
-+    (append
-+     (mapcar
-+      #'(lambda (c)
-+	  (intern-soft (concat (symbol-name c) "-unix"))) cs)
-+     (mapcar
-+      #'(lambda (c)
-+	  (intern-soft (concat (symbol-name c) "-dos"))) cs)
-+     (mapcar
-+      #'(lambda (c)
-+	  (intern-soft (concat (symbol-name c) "-mac"))) cs))))
-+
-+(defun japanese-p (list)
-+  (cond ((atom list) nil)
-+	((member (car list)
-+		 coding-system-for-japanese)
-+	 t)
-+	(t (japanese-p (cdr list)))))
-+
-+(defun migemo-isearch-auto-enable ()
-+  (unless (local-variable-p 'migemo-isearch-enable-p)
-+    (set (make-local-variable 'migemo-isearch-enable-p)
-+	 (japanese-p (detect-coding-with-language-environment
-+		      (point-min) (point-max) "japanese")))))
-+
-+(add-hook 'isearch-mode-hook #'migemo-isearch-auto-enable)
-+
-+(provide 'migemo-isearch-auto-enable)
 diff --git a/src/Makefile.in b/src/Makefile.in
-index eb34b97..e9dc57c 100644
+index 954d548216..393c891b98 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -394,7 +394,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o \
- 	region-cache.o sound.o atimer.o \
+@@ -405,7 +405,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o \
+ 	region-cache.o sound.o timefns.o atimer.o \
  	doprnt.o intervals.o textprop.o composite.o xml.o lcms.o $(NOTIFY_OBJ) \
  	$(XWIDGETS_OBJ) \
 -	profiler.o decompress.o \
@@ -202,7 +57,7 @@ index eb34b97..e9dc57c 100644
  	$(MSDOS_OBJ) $(MSDOS_X_OBJ) $(NS_OBJ) $(CYGWIN_OBJ) $(FONT_OBJ) \
 diff --git a/src/cmigemo.c b/src/cmigemo.c
 new file mode 100644
-index 0000000..37580d2
+index 0000000000..37580d2ef0
 --- /dev/null
 +++ b/src/cmigemo.c
 @@ -0,0 +1,458 @@
@@ -665,10 +520,10 @@ index 0000000..37580d2
 +}
 +#endif /* HAVE_CMIGEMO */
 diff --git a/src/emacs.c b/src/emacs.c
-index f2bebac..8cb84a5 100644
+index c99b007ea7..20cb696a16 100644
 --- a/src/emacs.c
 +++ b/src/emacs.c
-@@ -206,6 +206,10 @@ int initial_argc;
+@@ -224,6 +224,10 @@ char const *emacs_wd;
  static void sort_args (int argc, char **argv);
  static void syms_of_emacs (void);
  
@@ -679,14 +534,14 @@ index f2bebac..8cb84a5 100644
  /* C99 needs each string to be at most 4095 characters, and the usage
     strings below are split to not overflow this limit.  */
  static char const *const usage_message[] =
-@@ -1619,6 +1623,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
-       syms_of_threads ();
-       syms_of_profiler ();
+@@ -2244,6 +2248,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+       syms_of_json ();
+ #endif
  
 +#ifdef HAVE_CMIGEMO
 +      syms_of_cmigemo ();
 +#endif /* HAVE_CMIGEMO */
 +
-       keys_of_casefiddle ();
-       keys_of_cmds ();
-       keys_of_buffer ();
+       keys_of_keyboard ();
+ 
+ #ifdef HAVE_NATIVE_COMP

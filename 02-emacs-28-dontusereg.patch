@@ -1,5 +1,5 @@
 diff --git a/nt/addpm.c b/nt/addpm.c
-index a8bcd4a..5e7e3c7 100644
+index f54a6ea9f7..0ae2220085 100644
 --- a/nt/addpm.c
 +++ b/nt/addpm.c
 @@ -52,10 +52,6 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
@@ -10,8 +10,8 @@ index a8bcd4a..5e7e3c7 100644
 -#include "../src/epaths.h"
 -#endif
 -
- HDDEDATA CALLBACK DdeCallback (UINT, UINT, HCONV, HSZ, HSZ, HDDEDATA, DWORD,
- 			       DWORD);
+ HDDEDATA CALLBACK DdeCallback (UINT, UINT, HCONV, HSZ, HSZ, HDDEDATA, DWORD_PTR,
+ 			       DWORD_PTR);
  
 @@ -71,100 +67,6 @@ DdeCallback (UINT uType, UINT uFmt, HCONV hconv,
  	DdeClientTransaction ((LPBYTE)str, strlen (str)+1, conversation, (HSZ)NULL, \
