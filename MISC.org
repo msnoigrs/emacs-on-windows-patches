@@ -101,7 +101,7 @@ Aキーの左隣のキーがCtrlじゃないキーボードを使用する場合
 % pacman -S unzip
 #+END_EXAMPLE
 
-** ligegit2
+** libegit2
 
 magitで利用されるlibegit2をMinGW環境でビルドする方法。
 
