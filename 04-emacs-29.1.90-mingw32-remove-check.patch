@@ -1,8 +1,8 @@
 diff --git a/configure.ac b/configure.ac
-index ab94a6accc..54d532f707 100644
+index 095b225..d30d729 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2612,30 +2612,32 @@ if test "${HAVE_X11}" = "yes" || test "${HAVE_NS}" = "yes" || test "${HAVE_W32}"
+@@ -2892,30 +2892,32 @@ AC_DEFUN
         EMACS_CHECK_MODULES([IMAGEMAGICK], [Wand >= 6.3.5 Wand != 6.8.2])
      fi
  
@@ -39,12 +39,12 @@ index ab94a6accc..54d532f707 100644
        fi
 -    fi
 -    if test $HAVE_IMAGEMAGICK = yes; then
--      AC_DEFINE([HAVE_IMAGEMAGICK], 1, [Define to 1 if using ImageMagick.])
+-      AC_DEFINE([HAVE_IMAGEMAGICK], [1], [Define to 1 if using ImageMagick.])
 -    else
 -      if test "${with_imagemagick}" != "no"; then
 -        AC_MSG_ERROR([ImageMagick wanted, but it does not compile.  Maybe some library files are missing?]);
 +      if test $HAVE_IMAGEMAGICK = yes; then
-+        AC_DEFINE([HAVE_IMAGEMAGICK], 1, [Define to 1 if using ImageMagick.])
++        AC_DEFINE([HAVE_IMAGEMAGICK], [1], [Define to 1 if using ImageMagick.])
 +      else
 +        if test "${with_imagemagick}" != "no"; then
 +          AC_MSG_ERROR([ImageMagick wanted, but it does not compile.  Maybe some library files are missing?]);
@@ -57,15 +57,17 @@ index ab94a6accc..54d532f707 100644
      fi
      AC_SUBST([IMAGEMAGICK_CFLAGS])
      AC_SUBST([IMAGEMAGICK_LIBS])
-@@ -3876,10 +3878,14 @@ if test "${with_native_compilation}" != "no"; then
+@@ -4382,11 +4384,15 @@ AC_DEFUN
      fi
  
      # Check if libgccjit is available.
--    AC_CHECK_LIB(gccjit, gcc_jit_context_acquire, [], [libgccjit_not_found])
+-    AC_CHECK_LIB([gccjit], [gcc_jit_context_acquire],
+-      [], [libgccjit_not_found])
 +    if test "${opsys}" != "mingw32"; then
-+      AC_CHECK_LIB(gccjit, gcc_jit_context_acquire, [], [libgccjit_not_found])
++      AC_CHECK_LIB([gccjit], [gcc_jit_context_acquire],
++        [], [libgccjit_not_found])
 +    fi
-     AC_CHECK_HEADERS(libgccjit.h, [], [libgccjit_dev_not_found])
+     AC_CHECK_HEADERS([libgccjit.h], [], [libgccjit_dev_not_found])
      # Check if libgccjit really works.
 -    AC_RUN_IFELSE([libgccjit_smoke_test], [], [libgccjit_broken])
 +    if test "${opsys}" != "mingw32"; then

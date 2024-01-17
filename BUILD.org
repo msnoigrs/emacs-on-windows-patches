@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2019/10/17
+#+DATE: 2024/01/10
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -136,7 +136,7 @@ emacsのソースをダウンロードします。
 ここではgithubのリポジトリからcloneしています。
 
 #+BEGIN_EXAMPLE
-$ git clone -b emacs-28 https://github.com/emacs-mirror/emacs
+$ git clone -b emacs-29 https://github.com/emacs-mirror/emacs
 #+END_EXAMPLE
 
 =emacs= ディレクトリの下にソースツリーができます。
@@ -152,15 +152,27 @@ gitにプロキシの設定が必要な場合は、[[https://gist.github.com/eva
 パッチを適用します。
 
 #+BEGIN_EXAMPLE
-$ patch -p1 < ../emacs-on-windows-patches/00-emacs-28-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/01-emacs-28-disable-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/02-emacs-28-dontusereg.patch
-$ patch -p1 < ../emacs-on-windows-patches/03-emacs-28-cmigemo.patch
-$ patch -p1 < ../emacs-on-windows-patches/04-emacs-28-mingw32-remove-check.patch
+$ patch -p1 < ../emacs-on-windows-patches/00-emacs-29.1.90-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/01-emacs-29.1.90-disable-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/02-emacs-29.1.90-dontusereg.patch
+$ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.1.90-cmigemo.patch
+$ patch -p1 < ../emacs-on-windows-patches/04-emacs-29.1.90-mingw32-remove-check.patch
 #+END_EXAMPLE
 
 これでパッチ済みのソースツリーができあがります。
 ここではすべてのパッチを適用していますが、使いたいものだけでもよいです。
+
+*** w32-ime.elを取得
+
+#+BEGIN_EXAMPLE
+$ git clone https://github.com/trueroad/w32-ime.el
+#+END_EXAMPLE
+
+=w32-ime.el= をコピーします。
+
+#+BEGIN_EXAMPLE
+$ cp w32-ime.el/w32-ime.el emacs/lisp/international/w32-ime.el
+#+END_EXAMPLE
 
 *** nkfソースツリーを展開(cmigemoを組み込む場合)
 
@@ -230,7 +242,8 @@ emacsをビルドしてインストールします。
 $ cd ~/emacs/emacs
 $ ./autogen.sh
 $ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0' LDFLAGS='-s' ./configure --with-native-compilation --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules
-$ make
+$ make extraclean
+$ make bootstrap
 $ make install-strip prefix=/c/emacs
 #+END_EXAMPLE
 

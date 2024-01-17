@@ -1,7 +1,7 @@
 #+TITLE: Misc Settings
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2019/10/23
+#+DATE: 2024/01/17
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE: ja
@@ -39,7 +39,7 @@ https://www.google.co.jp/ime/
 
 https://gist.github.com/msnoigrs/fb1c08a2580704966556364ef558c634
 
-設定画面は、一般にはタスクバーにあるGoogle日本語入力のアイコンから開くことができます。もし見つけられない場合は、以下を試してください。
+以下を実行すると設定画面が表示されます。
 
 #+BEGIN_EXAMPLE
 > "C:\Program Files (x86)\Google\Google Japanese Input\GoogleIMEJaTool.exe" --mode=config_dialog
@@ -62,10 +62,6 @@ Windowsの設定 左側「地域と言語」選択
 後述する StartEmacs.exe や、IMEをON/OFFするキーバインドを変更するために使用します。以下から最新のものをダウンロードして、インストールします。
 
 https://github.com/Lexikos/AutoHotkey_L/releases
-
-AutoHotkeyには、ahkファイルからexeファイルを生成するツール（Ahk2Exe.exe）が含まれています。
-
-exeファイルを生成するには、コマンドライン上でAhk2Exe.exeに引数を指定して実行します。ちなみに、Ahk2Exe.exeを引数なしで実行するとGUIモードで起動します。その画面を操作をすることでもexeファイルを生成できます。
 
 ** StartEmacs
 

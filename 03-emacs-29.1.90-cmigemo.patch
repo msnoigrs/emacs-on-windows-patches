@@ -1,18 +1,18 @@
 diff --git a/configure.ac b/configure.ac
-index ca8d00a2de..ab94a6accc 100644
+index 2260d21..095b225 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -490,6 +490,7 @@ OPTION_DEFAULT_ON([modules],[don't compile with dynamic modules support])
- OPTION_DEFAULT_ON([threads],[don't compile with elisp threading support])
- OPTION_DEFAULT_OFF([native-compilation],[compile with Emacs Lisp native compiler support])
+@@ -504,6 +504,7 @@ AC_DEFUN
  OPTION_DEFAULT_OFF([cygwin32-native-compilation],[use native compilation on 32-bit Cygwin])
+ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for input])
+ OPTION_DEFAULT_OFF([small-ja-dic],[generate a smaller-size Japanese dictionary])
 +OPTION_DEFAULT_ON([cmigemo], [don't compile with CMIGEMO support])
  
  AC_ARG_WITH([file-notification],[AS_HELP_STRING([--with-file-notification=LIB],
   [use a file notification library (LIB one of: yes, inotify, kqueue, gfile, w32, no)])],
-@@ -3982,6 +3983,14 @@ fi
- AC_SUBST(LIBPNG)
- AC_SUBST(PNG_CFLAGS)
+@@ -4492,6 +4493,14 @@ AC_DEFUN
+ AC_SUBST([LIBPNG])
+ AC_SUBST([PNG_CFLAGS])
  
 +HAVE_CMIGEMO=no
 +if test "${with_cmigemo}" != "no"; then
@@ -25,16 +25,16 @@ index ca8d00a2de..ab94a6accc 100644
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -5949,7 +5958,7 @@ for opt in ACL CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTINGS \
-  M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PNG RSVG SECCOMP \
-  SOUND THREADS TIFF \
-  TOOLKIT_SCROLL_BARS UNEXEC X11 XAW3D XDBE XFT XIM XPM XWIDGETS X_TOOLKIT \
+@@ -6697,7 +6706,7 @@ AC_DEFUN
+  M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
+  SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
+  UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINPUT2 XPM XWIDGETS X_TOOLKIT \
 - ZLIB; do
 + ZLIB CMIGEMO; do
  
      case $opt in
        PDUMPER) val=${with_pdumper} ;;
-@@ -6021,6 +6030,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -6772,6 +6781,7 @@ AC_DEFUN
    Does Emacs use the GMP library?                         ${HAVE_GMP}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}
@@ -43,21 +43,21 @@ index ca8d00a2de..ab94a6accc 100644
    Does Emacs support Xwidgets?                            ${HAVE_XWIDGETS}
    Does Emacs have threading support in lisp?              ${threads_enabled}
 diff --git a/src/Makefile.in b/src/Makefile.in
-index 954d548216..393c891b98 100644
+index 9bc53c0..233f8d5 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -405,7 +405,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o \
- 	region-cache.o sound.o timefns.o atimer.o \
+@@ -443,7 +443,7 @@ base_obj =
+ 	region-cache.o sound.o timefns.o atimer.o 			       \
  	doprnt.o intervals.o textprop.o composite.o xml.o lcms.o $(NOTIFY_OBJ) \
- 	$(XWIDGETS_OBJ) \
--	profiler.o decompress.o \
-+	profiler.o decompress.o cmigemo.o \
- 	thread.o systhread.o \
- 	$(if $(HYBRID_MALLOC),sheap.o) \
- 	$(MSDOS_OBJ) $(MSDOS_X_OBJ) $(NS_OBJ) $(CYGWIN_OBJ) $(FONT_OBJ) \
+ 	$(XWIDGETS_OBJ) 						       \
+-	profiler.o decompress.o 					       \
++	profiler.o decompress.o cmigemo.o					       \
+ 	thread.o systhread.o sqlite.o  treesit.o			       \
+ 	itree.o 							       \
+ 	$(if $(HYBRID_MALLOC),sheap.o) 					       \
 diff --git a/src/cmigemo.c b/src/cmigemo.c
 new file mode 100644
-index 0000000000..37580d2ef0
+index 0000000..37580d2
 --- /dev/null
 +++ b/src/cmigemo.c
 @@ -0,0 +1,458 @@
@@ -520,10 +520,10 @@ index 0000000000..37580d2ef0
 +}
 +#endif /* HAVE_CMIGEMO */
 diff --git a/src/emacs.c b/src/emacs.c
-index c99b007ea7..20cb696a16 100644
+index dde305e..6fdff58 100644
 --- a/src/emacs.c
 +++ b/src/emacs.c
-@@ -224,6 +224,10 @@ char const *emacs_wd;
+@@ -246,6 +246,10 @@ #define MAIN_PROGRAM
  static void sort_args (int argc, char **argv);
  static void syms_of_emacs (void);
  
@@ -534,7 +534,7 @@ index c99b007ea7..20cb696a16 100644
  /* C99 needs each string to be at most 4095 characters, and the usage
     strings below are split to not overflow this limit.  */
  static char const *const usage_message[] =
-@@ -2244,6 +2248,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+@@ -2402,6 +2406,10 @@ main (int argc, char **argv)
        syms_of_json ();
  #endif
  
