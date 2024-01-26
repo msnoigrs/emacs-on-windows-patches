@@ -1,8 +1,8 @@
 diff --git a/nt/addpm.c b/nt/addpm.c
-index 1f13714..4adc7fa 100644
+index 6aee45d..d934fd8 100644
 --- a/nt/addpm.c
 +++ b/nt/addpm.c
-@@ -56,10 +56,6 @@ #define COBJMACROS 1
+@@ -56,10 +56,6 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
  #include <shlobj.h>
  #include <ddeml.h>
  
@@ -13,7 +13,7 @@ index 1f13714..4adc7fa 100644
  HDDEDATA CALLBACK DdeCallback (UINT, UINT, HCONV, HSZ, HSZ, HDDEDATA, DWORD_PTR,
  			       DWORD_PTR);
  
-@@ -75,100 +71,6 @@ #define DdeCommand(str) 	\
+@@ -75,100 +71,6 @@ DdeCallback (UINT uType, UINT uFmt, HCONV hconv,
  	DdeClientTransaction ((LPBYTE)str, strlen (str)+1, conversation, (HSZ)NULL, \
  		              CF_TEXT, XTYP_EXECUTE, 30000, NULL)
  

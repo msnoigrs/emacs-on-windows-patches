@@ -1,8 +1,8 @@
 diff --git a/configure.ac b/configure.ac
-index 095b225..d30d729 100644
+index 41112d4..0e8df1d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2892,30 +2892,32 @@ AC_DEFUN
+@@ -2892,30 +2892,32 @@ if test "${HAVE_X11}" = "yes" || test "${HAVE_NS}" = "yes" || test "${HAVE_W32}"
         EMACS_CHECK_MODULES([IMAGEMAGICK], [Wand >= 6.3.5 Wand != 6.8.2])
      fi
  
@@ -57,7 +57,7 @@ index 095b225..d30d729 100644
      fi
      AC_SUBST([IMAGEMAGICK_CFLAGS])
      AC_SUBST([IMAGEMAGICK_LIBS])
-@@ -4382,11 +4384,15 @@ AC_DEFUN
+@@ -4382,11 +4384,15 @@ if test "${with_native_compilation}" != "no"; then
      fi
  
      # Check if libgccjit is available.

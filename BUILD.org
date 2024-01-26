@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/01/10
+#+DATE: 2024/01/25
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -100,6 +100,7 @@ $ pacman -Syuu
 #+BEGIN_EXAMPLE
 $ pacman -S --needed base-devel \
   mingw-w64-x86_64-toolchain \
+  mingw-w64-x86_64-autotools \
   mingw-w64-x86_64-xpm-nox \
   mingw-w64-x86_64-libtiff \
   mingw-w64-x86_64-giflib \
@@ -111,6 +112,7 @@ $ pacman -S --needed base-devel \
   mingw-w64-x86_64-libxml2 \
   mingw-w64-x86_64-gnutls \
   mingw-w64-x86_64-zlib \
+  mingw-w64-x86_64-imagemagick \
   mingw-w64-x86_64-libgccjit
 #+END_EXAMPLE
 
@@ -152,11 +154,11 @@ gitにプロキシの設定が必要な場合は、[[https://gist.github.com/eva
 パッチを適用します。
 
 #+BEGIN_EXAMPLE
-$ patch -p1 < ../emacs-on-windows-patches/00-emacs-29.1.90-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/01-emacs-29.1.90-disable-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/02-emacs-29.1.90-dontusereg.patch
-$ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.1.90-cmigemo.patch
-$ patch -p1 < ../emacs-on-windows-patches/04-emacs-29.1.90-mingw32-remove-check.patch
+$ patch -p1 < ../emacs-on-windows-patches/00-emacs-29.2-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/01-emacs-29.2-disable-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/02-emacs-29.2-dontusereg.patch
+$ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.2-cmigemo.patch
+$ patch -p1 < ../emacs-on-windows-patches/04-emacs-29.2-mingw32-remove-check.patch
 #+END_EXAMPLE
 
 これでパッチ済みのソースツリーができあがります。
@@ -214,7 +216,7 @@ $ gzip -d SKK-JISYO.L.gz
 nkfをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd ~/emacs/nkf-2.1.4
+$ cd ~/emacs/nkf-2.1.5
 $ make
 $ make install
 #+END_EXAMPLE
@@ -242,7 +244,6 @@ emacsをビルドしてインストールします。
 $ cd ~/emacs/emacs
 $ ./autogen.sh
 $ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0' LDFLAGS='-s' ./configure --with-native-compilation --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules
-$ make extraclean
 $ make bootstrap
 $ make install-strip prefix=/c/emacs
 #+END_EXAMPLE

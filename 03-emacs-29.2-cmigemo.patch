@@ -1,0 +1,83 @@
+diff --git a/configure.ac b/configure.ac
+index bcd1c8b..41112d4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -504,6 +504,7 @@ OPTION_DEFAULT_ON([threads],[don't compile with elisp threading support])
+ OPTION_DEFAULT_OFF([cygwin32-native-compilation],[use native compilation on 32-bit Cygwin])
+ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for input])
+ OPTION_DEFAULT_OFF([small-ja-dic],[generate a smaller-size Japanese dictionary])
++OPTION_DEFAULT_ON([cmigemo], [don't compile with CMIGEMO support])
+ 
+ AC_ARG_WITH([file-notification],[AS_HELP_STRING([--with-file-notification=LIB],
+  [use a file notification library (LIB one of: yes, inotify, kqueue, gfile, w32, no)])],
+@@ -4492,6 +4493,14 @@ fi
+ AC_SUBST([LIBPNG])
+ AC_SUBST([PNG_CFLAGS])
+ 
++HAVE_CMIGEMO=no
++if test "${with_cmigemo}" != "no"; then
++  AC_CHECK_HEADER(migemo.h, HAVE_CMIGEMO=yes)
++  if test "${HAVE_CMIGEMO}" = "yes"; then
++    AC_DEFINE(HAVE_CMIGEMO, 1, [Define to 1 if you have the "migemo.h" header file.])
++  fi
++fi
++
+ ### Use -ltiff if available, unless '--with-tiff=no'.
+ ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
+ HAVE_TIFF=no
+@@ -6697,7 +6706,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
+  M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
+  SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
+  UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINPUT2 XPM XWIDGETS X_TOOLKIT \
+- ZLIB; do
++ ZLIB CMIGEMO; do
+ 
+     case $opt in
+       PDUMPER) val=${with_pdumper} ;;
+@@ -6772,6 +6781,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+   Does Emacs use the GMP library?                         ${HAVE_GMP}
+   Does Emacs directly use zlib?                           ${HAVE_ZLIB}
+   Does Emacs have dynamic modules support?                ${HAVE_MODULES}
++  Does Emacs use a cmigemo library?                       ${HAVE_CMIGEMO}
+   Does Emacs use toolkit scroll bars?                     ${USE_TOOLKIT_SCROLL_BARS}
+   Does Emacs support Xwidgets?                            ${HAVE_XWIDGETS}
+   Does Emacs have threading support in lisp?              ${threads_enabled}
+diff --git a/src/Makefile.in b/src/Makefile.in
+index b034f16..db7a1a2 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -443,7 +443,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o     \
+ 	region-cache.o sound.o timefns.o atimer.o 			       \
+ 	doprnt.o intervals.o textprop.o composite.o xml.o lcms.o $(NOTIFY_OBJ) \
+ 	$(XWIDGETS_OBJ) 						       \
+-	profiler.o decompress.o 					       \
++	profiler.o decompress.o cmigemo.o					       \
+ 	thread.o systhread.o sqlite.o  treesit.o			       \
+ 	itree.o 							       \
+ 	$(if $(HYBRID_MALLOC),sheap.o) 					       \
+diff --git a/src/emacs.c b/src/emacs.c
+index 712826d..2374a31 100644
+--- a/src/emacs.c
++++ b/src/emacs.c
+@@ -246,6 +246,10 @@ char const *emacs_wd;
+ static void sort_args (int argc, char **argv);
+ static void syms_of_emacs (void);
+ 
++#ifdef HAVE_CMIGEMO
++extern void syms_of_cmigemo (void);
++#endif
++
+ /* C99 needs each string to be at most 4095 characters, and the usage
+    strings below are split to not overflow this limit.  */
+ static char const *const usage_message[] =
+@@ -2402,6 +2406,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+       syms_of_json ();
+ #endif
+ 
++#ifdef HAVE_CMIGEMO
++      syms_of_cmigemo ();
++#endif /* HAVE_CMIGEMO */
++
+       keys_of_keyboard ();
+ 
+ #ifdef HAVE_NATIVE_COMP

@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index 29b71ea..2260d21 100644
+index 8c98e81..bcd1c8b 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -479,6 +479,11 @@ AC_ARG_WITH([ns],[AS_HELP_STRING([--with-ns],
@@ -86,7 +86,7 @@ index 29b71ea..2260d21 100644
     AS_ECHO(["  Environment variable EMACSDATA set to:                  $EMACSDATA"])
  fi
 diff --git a/lisp/loadup.el b/lisp/loadup.el
-index 1cc7034..5dd1d20 100644
+index 7c6dc4b..f3ea9d4 100644
 --- a/lisp/loadup.el
 +++ b/lisp/loadup.el
 @@ -282,71 +282,73 @@
@@ -228,7 +228,7 @@ index 1cc7034..5dd1d20 100644
  ;; progmodes/elisp-mode.el must be after w32-fns.el, to avoid this:
  ;;"Eager macro-expansion failure: (void-function w32-convert-standard-filename)"
 diff --git a/src/frame.c b/src/frame.c
-index fc6a345..a00c630 100644
+index 5ee74bd..2a0a485 100644
 --- a/src/frame.c
 +++ b/src/frame.c
 @@ -1454,8 +1454,27 @@ affects all frames on the same terminal device.  */)
@@ -270,7 +270,7 @@ index fc6a345..a00c630 100644
    {"tool-bar-position",		SYMBOL_INDEX (Qtool_bar_position)},
    {"inhibit-double-buffering",  SYMBOL_INDEX (Qinhibit_double_buffering)},
 diff --git a/src/keyboard.c b/src/keyboard.c
-index 06b678a..0d9dffe 100644
+index 4053f53..2c41cc1 100644
 --- a/src/keyboard.c
 +++ b/src/keyboard.c
 @@ -348,6 +348,11 @@ static struct timespec timer_last_idleness_start_time;
@@ -408,7 +408,7 @@ index 06b678a..0d9dffe 100644
    virtual_core_pointer_name = build_string ("Virtual core pointer");
    virtual_core_keyboard_name = build_string ("Virtual core keyboard");
 diff --git a/src/w32fns.c b/src/w32fns.c
-index 745f561..71f5c58 100644
+index 8c7ac09..eed6a29 100644
 --- a/src/w32fns.c
 +++ b/src/w32fns.c
 @@ -87,18 +87,86 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
@@ -1745,7 +1745,7 @@ index 745f561..71f5c58 100644
    defsubr (&Sw32_read_registry);
    defsubr (&Sfile_system_info);
 diff --git a/src/w32font.c b/src/w32font.c
-index 2917fa5..e0d72c6 100644
+index f2d4e5e..82ed0be 100644
 --- a/src/w32font.c
 +++ b/src/w32font.c
 @@ -55,7 +55,10 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
@@ -1773,7 +1773,7 @@ index 2917fa5..e0d72c6 100644
  {
    Lisp_Object tmp, extra;
 diff --git a/src/w32font.h b/src/w32font.h
-index 3f1c86a..3ba1ca2 100644
+index 3f780c1..724d158 100644
 --- a/src/w32font.h
 +++ b/src/w32font.h
 @@ -83,6 +83,9 @@ int w32font_draw (struct glyph_string *s, int from, int to,
@@ -1787,7 +1787,7 @@ index 3f1c86a..3ba1ca2 100644
  extern void globals_of_w32font (void);
  
 diff --git a/src/w32term.c b/src/w32term.c
-index 40b04b1..a493b2b 100644
+index 6dae118..de92b24 100644
 --- a/src/w32term.c
 +++ b/src/w32term.c
 @@ -5948,6 +5948,107 @@ w32_read_socket (struct terminal *terminal,
@@ -1922,7 +1922,7 @@ index 40b04b1..a493b2b 100644
  
  /* Change from mapped state to withdrawn state. */
 diff --git a/src/w32term.h b/src/w32term.h
-index 69ef297..6116b81 100644
+index 6930839..3c578ff 100644
 --- a/src/w32term.h
 +++ b/src/w32term.h
 @@ -656,6 +656,8 @@ do { \
@@ -2045,7 +2045,7 @@ index 69ef297..6116b81 100644
 +extern void w32_ime_control_init (void);
 +#endif /* USE_W32_IME */
 diff --git a/src/window.c b/src/window.c
-index 1dc9776..84a4c1d 100644
+index 8d4bde8..6d71f7e 100644
 --- a/src/window.c
 +++ b/src/window.c
 @@ -515,6 +515,9 @@ select_window (Lisp_Object window, Lisp_Object norecord,
@@ -2089,7 +2089,7 @@ index 1dc9776..84a4c1d 100644
    return Qnil;
  }
  
-@@ -8396,6 +8416,10 @@ syms_of_window (void)
+@@ -8400,6 +8420,10 @@ syms_of_window (void)
    DEFSYM (Qwindow_size_change_functions, "window-size-change-functions");
    DEFSYM (Qwindow_buffer_change_functions, "window-buffer-change-functions");
    DEFSYM (Qwindow_selection_change_functions, "window-selection-change-functions");
@@ -2100,7 +2100,7 @@ index 1dc9776..84a4c1d 100644
    DEFSYM (Qwindowp, "windowp");
    DEFSYM (Qwindow_configuration_p, "window-configuration-p");
    DEFSYM (Qwindow_live_p, "window-live-p");
-@@ -8690,6 +8714,17 @@ Note that this optimization can cause the portion of the buffer
+@@ -8694,6 +8718,17 @@ Note that this optimization can cause the portion of the buffer
  displayed after a scrolling operation to be somewhat inaccurate.  */);
    fast_but_imprecise_scrolling = false;
  
@@ -2119,7 +2119,7 @@ index 1dc9776..84a4c1d 100644
    defsubr (&Sold_selected_window);
    defsubr (&Sminibuffer_window);
 diff --git a/src/xdisp.c b/src/xdisp.c
-index eb38ebb..499af88 100644
+index 2d85a99..1fc74dc 100644
 --- a/src/xdisp.c
 +++ b/src/xdisp.c
 @@ -13407,8 +13407,23 @@ format_mode_line_unwind_data (struct frame *target_frame,

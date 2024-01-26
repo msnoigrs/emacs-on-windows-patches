@@ -1,8 +1,8 @@
 diff --git a/src/w32fns.c b/src/w32fns.c
-index 71f5c58..2179ded 100644
+index eed6a29..d87e320 100644
 --- a/src/w32fns.c
 +++ b/src/w32fns.c
-@@ -131,6 +131,8 @@ #define DOCFEED_CSTR_LENG 64
+@@ -131,6 +131,8 @@ static BOOL w32_perform_reconversion (HWND, RECONVERTSTRING*);
  static LRESULT w32_get_ime_documentfeed_string (HWND, RECONVERTSTRING*);
  #endif
  
@@ -11,7 +11,7 @@ index 71f5c58..2179ded 100644
  #ifndef IDC_HAND
  #define IDC_HAND MAKEINTRESOURCE(32649)
  #endif
-@@ -239,6 +241,8 @@ #define CCHDEVICENAME 32
+@@ -239,6 +241,8 @@ struct MONITOR_INFO_EX
  DECLARE_HANDLE(HMONITOR);
  #endif
  
@@ -20,7 +20,7 @@ index 71f5c58..2179ded 100644
  typedef BOOL (WINAPI * TrackMouseEvent_Proc)
    (IN OUT LPTRACKMOUSEEVENT lpEventTrack);
  typedef LONG (WINAPI * ImmGetCompositionString_Proc)
-@@ -272,6 +276,8 @@ DECLARE_HANDLE(HMONITOR);
+@@ -272,6 +276,8 @@ typedef HRESULT (WINAPI * SetWindowTheme_Proc)
  typedef HRESULT (WINAPI * DwmSetWindowAttribute_Proc)
    (HWND hwnd, DWORD dwAttribute, IN LPCVOID pvAttribute, DWORD cbAttribute);
  
@@ -100,7 +100,7 @@ index 71f5c58..2179ded 100644
  
  /*
    Emacs Lisp function entries
-@@ -12157,6 +12213,10 @@ syms_of_w32fns (void)
+@@ -12157,6 +12213,10 @@ window instead of current window.  */);
  
    /* W32 specific functions */
  
@@ -111,7 +111,7 @@ index 71f5c58..2179ded 100644
    defsubr (&Sw32_define_rgb_color);
    defsubr (&Sw32_display_monitor_attributes_list);
    defsubr (&Sw32_send_sys_command);
-@@ -12454,6 +12514,11 @@ #define _open open
+@@ -12454,6 +12514,11 @@ void
  globals_of_w32fns (void)
  {
    HMODULE user32_lib = GetModuleHandle ("user32.dll");
@@ -124,10 +124,10 @@ index 71f5c58..2179ded 100644
      TrackMouseEvent not available in all versions of Windows, so must load
      it dynamically.  Do it once, here, instead of every time it is used.
 diff --git a/src/w32term.h b/src/w32term.h
-index 6116b81..838ea77 100644
+index 3c578ff..6f59b36 100644
 --- a/src/w32term.h
 +++ b/src/w32term.h
-@@ -667,6 +667,8 @@ #define WM_UNICHAR 0x109
+@@ -667,6 +667,8 @@ do { \
  #define UNICODE_NOCHAR 0xFFFF
  #endif
  
