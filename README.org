@@ -9,7 +9,7 @@
 #+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
 #+OPTIONS: author:t creator:nil email:nil date:t
 
-* GNU Emacs 29.2をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ - W32-IME組み込み
+* GNU Emacs 29.4をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ - W32-IME組み込み
 
 飛躍的に高速化したnative compileをするemacs、いわゆるgccemacsですが、Windowsでも自前でコンパイルすることで動作します。ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。
 
@@ -63,9 +63,11 @@ addpm.exeの処理において各種パスのレジストリ登録処理を省�
 
 私はこのcmigemo組み込みパッチを好んで使っていますが、他に同rzl24ozi氏による[[https://github.com/rzl24ozi/cmigemo-module][dynamic module版]]を使う方法もあります。
 
-** 04-emacs-29.2-mingw32-remove-check.patch
+** Fix-MinGW-build-with-GCC14-and-later.patch
 
-=configure= においてgccjitやimagemagickの存在確認チェック処理を無効にするパッチです。存在確認チェック処理が正しく機能しないため、 =--with-native-compilation= や =--with-imagemagick= を付した =configure= が止まってしまいます。(2024-01-10 時点)それを回避します。
+MinGWのGCC14.1以降だとコンパイルに失敗する事象を回避します。
+[[https://mail.gnu.org/archive/html/bug-gnu-emacs/2024-05/msg01179.html]]
+[[https://github.com/emacs-mirror/emacs/commit/5216903ae6c3f91ebefb1152af40753f723cbc39]]
 
 * ビルド方法
 

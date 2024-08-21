@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/01/25
+#+DATE: 2024/08/20
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -15,7 +15,7 @@ GNU Emacsのビルド方法については、[[https://gist.github.com/rzl24ozi/
 
 ** MSYS2のインストール
 
-MSYS2のインストーラーを[[http://www.msys2.org/]]からダウンロードします。
+MSYS2のインストーラーを[[https://www.msys2.org/]]からダウンロードします。
 
 インストールが終わると、スタートメニューには以下の３つが追加されます。（最近はUCRT版もインストールされる）
 
@@ -134,14 +134,19 @@ $ cd ~/emacs
 *** Emacsソースツリーを展開
 
 emacsのソースをダウンロードします。
-
-ここではgithubのリポジトリからcloneしています。
+ここ[[https://github.com/emacs-mirror/emacs/tags]]からダウンロード可能です。
 
 #+BEGIN_EXAMPLE
-$ git clone -b emacs-29 https://github.com/emacs-mirror/emacs
+$ wget https://github.com/emacs-mirror/emacs/tags/emacs-29.4.tar.gz
 #+END_EXAMPLE
 
-=emacs= ディレクトリの下にソースツリーができます。
+展開します。
+
+#+BEGIN_EXAMPLE
+$ tar xf emacs-29.4.tar.gz
+#+END_EXAMPLE
+
+=emacs-emacs-29.4= ディレクトリの下にソースツリーができます。
 
 本リポジトリのパッチを取得します。gitを使う例を示しますが、[[https://github.com/msnoigrs/emacs-on-windows-patches]]からブラウザを使ってダウンロードしてもかまいません。
 
@@ -154,11 +159,12 @@ gitにプロキシの設定が必要な場合は、[[https://gist.github.com/eva
 パッチを適用します。
 
 #+BEGIN_EXAMPLE
-$ patch -p1 < ../emacs-on-windows-patches/00-emacs-29.2-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/01-emacs-29.2-disable-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/02-emacs-29.2-dontusereg.patch
-$ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.2-cmigemo.patch
-$ patch -p1 < ../emacs-on-windows-patches/04-emacs-29.2-mingw32-remove-check.patch
+$ cd emacs-emacs-29.4
+$ patch -p1 < ../emacs-on-windows-patches/00-emacs-29.4-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/01-emacs-29.4-disable-w32-ime.patch
+$ patch -p1 < ../emacs-on-windows-patches/02-emacs-29.4-dontusereg.patch
+$ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.4-cmigemo.patch
+$ patch -p1 < ../emacs-on-windows-patches/Fix-MinGW-build-with-GCC14-and-later.patch
 #+END_EXAMPLE
 
 これでパッチ済みのソースツリーができあがります。
@@ -167,13 +173,14 @@ $ patch -p1 < ../emacs-on-windows-patches/04-emacs-29.2-mingw32-remove-check.pat
 *** w32-ime.elを取得
 
 #+BEGIN_EXAMPLE
+$ cd ..
 $ git clone https://github.com/trueroad/w32-ime.el
 #+END_EXAMPLE
 
 =w32-ime.el= をコピーします。
 
 #+BEGIN_EXAMPLE
-$ cp w32-ime.el/w32-ime.el emacs/lisp/international/w32-ime.el
+$ cp w32-ime.el/w32-ime.el emacs-emacs-29.4/lisp/international/w32-ime.el
 #+END_EXAMPLE
 
 *** nkfソースツリーを展開(cmigemoを組み込む場合)
@@ -216,7 +223,7 @@ $ gzip -d SKK-JISYO.L.gz
 nkfをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd ~/emacs/nkf-2.1.5
+$ cd nkf-2.1.5
 $ make
 $ make install
 #+END_EXAMPLE
@@ -228,7 +235,7 @@ $ make install
 cmigemoをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd ~/emacs/cmigemo
+$ cd ../cmigemo
 $ ./configure --prefix=/usr/local
 $ make mingw-all
 $ make mingw-install
@@ -241,8 +248,7 @@ $ make mingw-install
 emacsをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd ~/emacs/emacs
-$ ./autogen.sh
+$ cd ../emacs-emacs-29.4
 $ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0' LDFLAGS='-s' ./configure --with-native-compilation --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules
 $ make bootstrap
 $ make install-strip prefix=/c/emacs

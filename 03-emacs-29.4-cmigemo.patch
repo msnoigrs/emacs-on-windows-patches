@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index bcd1c8b..41112d4 100644
+index 647b86a..9d3746f 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -504,6 +504,7 @@ OPTION_DEFAULT_ON([threads],[don't compile with elisp threading support])

@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index 8c98e81..bcd1c8b 100644
+index eca5025..647b86a 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -479,6 +479,11 @@ AC_ARG_WITH([ns],[AS_HELP_STRING([--with-ns],
@@ -1745,7 +1745,7 @@ index 8c7ac09..eed6a29 100644
    defsubr (&Sw32_read_registry);
    defsubr (&Sfile_system_info);
 diff --git a/src/w32font.c b/src/w32font.c
-index f2d4e5e..82ed0be 100644
+index 70cfdd6..b53e954 100644
 --- a/src/w32font.c
 +++ b/src/w32font.c
 @@ -55,7 +55,10 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
@@ -1787,10 +1787,10 @@ index 3f780c1..724d158 100644
  extern void globals_of_w32font (void);
  
 diff --git a/src/w32term.c b/src/w32term.c
-index 6dae118..de92b24 100644
+index 281ce3c..11e8329 100644
 --- a/src/w32term.c
 +++ b/src/w32term.c
-@@ -5948,6 +5948,107 @@ w32_read_socket (struct terminal *terminal,
+@@ -5949,6 +5949,107 @@ w32_read_socket (struct terminal *terminal,
  	  break;
  #endif
  
@@ -1898,7 +1898,7 @@ index 6dae118..de92b24 100644
  	default:
  	  /* Check for messages registered at runtime.  */
  	  if (msg.msg.message == msh_mousewheel)
-@@ -6320,7 +6421,12 @@ w32_draw_window_cursor (struct window *w, struct glyph_row *glyph_row,
+@@ -6321,7 +6422,12 @@ w32_draw_window_cursor (struct window *w, struct glyph_row *glyph_row,
  	    + WINDOW_HEADER_LINE_HEIGHT (w);
  	  w32_system_caret_mode_height = WINDOW_MODE_LINE_HEIGHT (w);
  
@@ -1911,7 +1911,7 @@ index 6dae118..de92b24 100644
  
  	  /* If the size of the active cursor changed, destroy the old
  	     system caret.  */
-@@ -7138,6 +7244,9 @@ w32_make_frame_visible (struct frame *f)
+@@ -7139,6 +7245,9 @@ w32_make_frame_visible (struct frame *f)
  	  }
        }
    }
@@ -2045,7 +2045,7 @@ index 6930839..3c578ff 100644
 +extern void w32_ime_control_init (void);
 +#endif /* USE_W32_IME */
 diff --git a/src/window.c b/src/window.c
-index 8d4bde8..6d71f7e 100644
+index 5301b76..b9811bf 100644
 --- a/src/window.c
 +++ b/src/window.c
 @@ -515,6 +515,9 @@ select_window (Lisp_Object window, Lisp_Object norecord,
@@ -2089,7 +2089,7 @@ index 8d4bde8..6d71f7e 100644
    return Qnil;
  }
  
-@@ -8400,6 +8420,10 @@ syms_of_window (void)
+@@ -8412,6 +8432,10 @@ syms_of_window (void)
    DEFSYM (Qwindow_size_change_functions, "window-size-change-functions");
    DEFSYM (Qwindow_buffer_change_functions, "window-buffer-change-functions");
    DEFSYM (Qwindow_selection_change_functions, "window-selection-change-functions");
@@ -2100,7 +2100,7 @@ index 8d4bde8..6d71f7e 100644
    DEFSYM (Qwindowp, "windowp");
    DEFSYM (Qwindow_configuration_p, "window-configuration-p");
    DEFSYM (Qwindow_live_p, "window-live-p");
-@@ -8694,6 +8718,17 @@ Note that this optimization can cause the portion of the buffer
+@@ -8706,6 +8730,17 @@ Note that this optimization can cause the portion of the buffer
  displayed after a scrolling operation to be somewhat inaccurate.  */);
    fast_but_imprecise_scrolling = false;
  
@@ -2119,7 +2119,7 @@ index 8d4bde8..6d71f7e 100644
    defsubr (&Sold_selected_window);
    defsubr (&Sminibuffer_window);
 diff --git a/src/xdisp.c b/src/xdisp.c
-index 2d85a99..1fc74dc 100644
+index 1b198df..d34c793 100644
 --- a/src/xdisp.c
 +++ b/src/xdisp.c
 @@ -13407,8 +13407,23 @@ format_mode_line_unwind_data (struct frame *target_frame,
