@@ -1,0 +1,55 @@
+diff --git a/configure.ac b/configure.ac
+index 6397991340f..13623295f65 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3759,6 +3759,7 @@ AC_DEFUN
+        EMACS_CHECK_MODULES([IMAGEMAGICK], [Wand >= 6.3.5 Wand != 6.8.2])
+     fi
+ 
++    if test "${opsys}" != "mingw32"; then
+     if test $HAVE_IMAGEMAGICK = yes; then
+       OLD_CFLAGS=$CFLAGS
+       OLD_LIBS=$LIBS
+@@ -3793,6 +3794,7 @@ AC_DEFUN
+       IMAGEMAGICK_CFLAGS=
+       IMAGEMAGICK_LIBS=
+     fi
++    fi
+     AC_SUBST([IMAGEMAGICK_CFLAGS])
+     AC_SUBST([IMAGEMAGICK_LIBS])
+   fi
+@@ -5253,13 +5255,17 @@ AC_DEFUN
+ 
+ if test "${with_native_compilation}" = "default"; then
+     # Check if libgccjit is available.
++    if test "${opsys}" != "mingw32"; then
+     AC_CHECK_LIB([gccjit], [gcc_jit_context_acquire],
+       [], [libgccjit_not_found])
++    fi
+     AC_CHECK_HEADERS([libgccjit.h], [], [libgccjit_dev_not_found])
+     if test "${with_native_compilation}" != "no"; then
++    if test "${opsys}" != "mingw32"; then
+       # Check if libgccjit really works.
+       AC_RUN_IFELSE([libgccjit_smoke_test], [], [libgccjit_broken])
+     fi
++    fi
+     if test "$with_unexec" = yes; then
+       with_native_compilation=no
+     fi
+@@ -5314,12 +5320,16 @@ AC_DEFUN
+ 
+     # In the default case we already checked
+     if test "${with_native_compilation}" != "default"; then
++      if test "${opsys}" != "mingw32"; then
+       # Check if libgccjit is available.
+       AC_CHECK_LIB([gccjit], [gcc_jit_context_acquire],
+         [], [libgccjit_not_found_err])
++      fi
+       AC_CHECK_HEADERS([libgccjit.h], [], [libgccjit_dev_not_found_err])
++      if test "${opsys}" != "mingw32"; then
+       # Check if libgccjit really works.
+       AC_RUN_IFELSE([libgccjit_smoke_test], [], [libgccjit_broken_err])
++      fi
+     fi
+     HAVE_NATIVE_COMP=yes
+     case "${opsys}" in

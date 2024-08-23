@@ -1,0 +1,547 @@
+diff --git a/configure.ac b/configure.ac
+index a71881740d9..c7672eca8de 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -602,6 +602,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
+ OPTION_DEFAULT_OFF([small-ja-dic],[generate a smaller-size Japanese dictionary])
+ OPTION_DEFAULT_OFF([android],[cross-compile Android application package])
+ OPTION_DEFAULT_ON([android-debug],[don't build Emacs as a debug package on Android])
++OPTION_DEFAULT_ON([cmigemo], [don't compile with CMIGEMO support])
+ 
+ # Find out of Android support is enabled and mailutils has defaulted
+ # to `yes-unless-android'.  Disable it if so.
+@@ -5427,6 +5428,14 @@ fi
+ AC_SUBST([LIBPNG])
+ AC_SUBST([PNG_CFLAGS])
+ 
++HAVE_CMIGEMO=no
++if test "${with_cmigemo}" != "no"; then
++  AC_CHECK_HEADER(migemo.h, HAVE_CMIGEMO=yes)
++  if test "${HAVE_CMIGEMO}" = "yes"; then
++    AC_DEFINE(HAVE_CMIGEMO, 1, [Define to 1 if you have the "migemo.h" header file.])
++  fi
++fi
++
+ ### Use -ltiff if available, unless '--with-tiff=no'.
+ ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
+ HAVE_TIFF=no
+@@ -7777,7 +7786,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
+  M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
+  SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
+  UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINPUT2 XPM XWIDGETS X_TOOLKIT \
+- ZLIB; do
++ ZLIB CMIGEMO; do
+ 
+     case $opt in
+       PDUMPER) val=${with_pdumper} ;;
+@@ -7857,6 +7866,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+   Does Emacs use the GMP library?                         ${HAVE_GMP}
+   Does Emacs directly use zlib?                           ${HAVE_ZLIB}
+   Does Emacs have dynamic modules support?                ${HAVE_MODULES}
++  Does Emacs use a cmigemo library?                       ${HAVE_CMIGEMO}
+   Does Emacs use toolkit scroll bars?                     ${USE_TOOLKIT_SCROLL_BARS}
+   Does Emacs support Xwidgets?                            ${HAVE_XWIDGETS}
+   Does Emacs have threading support in lisp?              ${threads_enabled}
+diff --git a/src/Makefile.in b/src/Makefile.in
+index c278924ef94..856f4f4abe6 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -476,7 +476,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o     \
+ 	region-cache.o sound.o timefns.o atimer.o 			       \
+ 	doprnt.o intervals.o textprop.o composite.o xml.o lcms.o $(NOTIFY_OBJ) \
+ 	$(XWIDGETS_OBJ) 						       \
+-	profiler.o decompress.o 					       \
++	profiler.o decompress.o cmigemo.o					       \
+ 	thread.o systhread.o sqlite.o  treesit.o			       \
+ 	itree.o json.o 							       \
+ 	$(if $(HYBRID_MALLOC),sheap.o) 					       \
+diff --git a/src/cmigemo.c b/src/cmigemo.c
+new file mode 100644
+index 00000000000..37580d2ef0d
+--- /dev/null
++++ b/src/cmigemo.c
+@@ -0,0 +1,458 @@
++#ifdef NULL
++#undef NULL
++#endif
++#include <config.h>
++#ifdef HAVE_CMIGEMO
++#include <setjmp.h>
++
++#include "lisp.h"
++#include "charset.h"
++#include "coding.h"
++
++#ifdef WINDOWSNT
++#include <windows.h>
++#define MIGEMO_DLL "migemo.dll"
++#else
++#ifdef CYGWIN
++#define MIGEMO_DLL "cygmigemo1.dll"
++#else
++#define MIGEMO_DLL "libmigemo.so"
++#endif
++#include <stdio.h>
++#include <dlfcn.h>
++#endif
++
++#include "migemo.h"
++
++extern void syms_of_cmigemo (void);
++
++/* from cmigemo charset.h */
++enum {
++    CHARSET_NONE = 0,
++    CHARSET_CP932 = 1,
++    CHARSET_EUCJP = 2,
++    CHARSET_UTF8 = 3,
++};
++typedef int (*charset_proc_int2char)(unsigned int, unsigned char*);
++#define CHARSET_PROC_INT2CHAR charset_proc_int2char
++
++/* from cmigemo charset.c */
++#define BUFLEN_DETECT 4096
++static int cp932_int2char(unsigned int in, unsigned char* out)
++{
++    if (in >= 0x100)
++    {
++	if (out)
++	{
++	    out[0] = (unsigned char)((in >> 8) & 0xFF);
++	    out[1] = (unsigned char)(in & 0xFF);
++	}
++	return 2;
++    }
++    else
++	return 0;
++}
++static int eucjp_int2char(unsigned int in, unsigned char* out)
++{
++    /* CP932と内容は同じだが将来JISX0213に対応させるために分離しておく */
++    if (in >= 0x100)
++    {
++	if (out)
++	{
++	    out[0] = (unsigned char)((in >> 8) & 0xFF);
++	    out[1] = (unsigned char)(in & 0xFF);
++	}
++	return 2;
++    }
++    else
++	return 0;
++}
++static int utf8_int2char(unsigned int in, unsigned char* out)
++{
++    if (in < 0x80)
++	return 0;
++    if (in < 0x800)
++    {
++	if (out)
++	{
++	    out[0] = 0xc0 + (in >> 6);
++	    out[1] = 0x80 + ((in >> 0) & 0x3f);
++	}
++	return 2;
++    }
++    if (in < 0x10000)
++    {
++	if (out)
++	{
++	    out[0] = 0xe0 + (in >> 12);
++	    out[1] = 0x80 + ((in >> 6) & 0x3f);
++	    out[2] = 0x80 + ((in >> 0) & 0x3f);
++	}
++	return 3;
++    }
++    if (in < 0x200000)
++    {
++	if (out)
++	{
++	    out[0] = 0xf0 + (in >> 18);
++	    out[1] = 0x80 + ((in >> 12) & 0x3f);
++	    out[2] = 0x80 + ((in >> 6) & 0x3f);
++	    out[3] = 0x80 + ((in >> 0) & 0x3f);
++	}
++	return 4;
++    }
++    if (in < 0x4000000)
++    {
++	if (out)
++	{
++	    out[0] = 0xf8 + (in >> 24);
++	    out[1] = 0x80 + ((in >> 18) & 0x3f);
++	    out[2] = 0x80 + ((in >> 12) & 0x3f);
++	    out[3] = 0x80 + ((in >> 6) & 0x3f);
++	    out[4] = 0x80 + ((in >> 0) & 0x3f);
++	}
++	return 5;
++    }
++    else
++    {
++	if (out)
++	{
++	    out[0] = 0xf8 + (in >> 30);
++	    out[1] = 0x80 + ((in >> 24) & 0x3f);
++	    out[2] = 0x80 + ((in >> 18) & 0x3f);
++	    out[3] = 0x80 + ((in >> 12) & 0x3f);
++	    out[4] = 0x80 + ((in >> 6) & 0x3f);
++	    out[5] = 0x80 + ((in >> 0) & 0x3f);
++	}
++	return 6;
++    }
++}
++static int
++charset_detect_buf(const unsigned char* buf, int len)
++{
++    int sjis = 0, smode = 0;
++    int euc = 0, emode = 0, eflag = 0;
++    int utf8 = 0, umode = 0, ufailed = 0;
++    int i;
++    for (i = 0; i < len; ++i)
++    {
++	unsigned char c = buf[i];
++	// SJISであるかのチェック
++	if (smode)
++	{
++	    if ((0x40 <= c && c <= 0x7e) || (0x80 <= c && c <= 0xfc))
++		++sjis;
++	    smode = 0;
++	}
++	else if ((0x81 <= c && c <= 0x9f) || (0xe0 <= c && c <= 0xf0))
++	    smode = 1;
++	// EUCであるかのチェック
++	eflag = 0xa1 <= c && c <= 0xfe;
++	if (emode)
++	{
++	    if (eflag)
++		++euc;
++	    emode = 0;
++	}
++	else if (eflag)
++	    emode = 1;
++	// UTF8であるかのチェック
++	if (!ufailed)
++	{
++	    if (umode < 1)
++	    {
++		if ((c & 0x80) != 0)
++		{
++		    if ((c & 0xe0) == 0xc0)
++			umode = 1;
++		    else if ((c & 0xf0) == 0xe0)
++			umode = 2;
++		    else if ((c & 0xf8) == 0xf0)
++			umode = 3;
++		    else if ((c & 0xfc) == 0xf8)
++			umode = 4;
++		    else if ((c & 0xfe) == 0xfc)
++			umode = 5;
++		    else
++		    {
++			ufailed = 1;
++			--utf8;
++		    }
++		}
++	    }
++	    else
++	    {
++		if ((c & 0xc0) == 0x80)
++		{
++		    ++utf8;
++		    --umode;
++		}
++		else
++		{
++		    --utf8;
++		    umode = 0;
++		    ufailed = 1;
++		}
++	    }
++	    if (utf8 < 0)
++		utf8 = 0;
++	}
++    }
++    // 最終的に一番得点の高いエンコードを返す
++    if (euc > sjis && euc > utf8)
++	return CHARSET_EUCJP;
++    else if (!ufailed && utf8 > euc && utf8 > sjis)
++	return CHARSET_UTF8;
++    else if (sjis > euc && sjis > utf8)
++	return CHARSET_CP932;
++    else
++	return CHARSET_NONE;
++}
++static int
++charset_detect_file(const char* path)
++{
++    int charset = CHARSET_NONE;
++    FILE* fp;
++    if ((fp = fopen(path, "rt")) != NULL)
++    {
++	unsigned char buf[BUFLEN_DETECT];
++	size_t len = fread(buf, sizeof(buf[0]), sizeof(buf), fp);
++	fclose(fp);
++	if (len > 0 && len <= INT_MAX)
++	    charset = charset_detect_buf(buf, (int)len);
++    }
++    return charset;
++}
++/**/
++
++migemo* (*migemo_open_)(const char*);
++void (*migemo_close_)(migemo*);
++unsigned char* (*migemo_query_)(migemo*, unsigned char*);
++void (*migemo_release_)(migemo*, unsigned char*);
++
++int (*migemo_set_operator_)(migemo*, int, unsigned char*);
++int (*migemo_is_enable_)(migemo*);
++int (*migemo_load_)(migemo*, int, char *);
++void (*migemo_setproc_char2int_)(migemo*, MIGEMO_PROC_CHAR2INT);
++void (*migemo_setproc_int2char_)(migemo*, MIGEMO_PROC_INT2CHAR);
++
++static migemo *pmigemo = NULL;
++#ifdef WINDOWSNT
++static HMODULE hMigemo = NULL;
++#else
++static void *hMigemo = NULL;
++#endif
++
++static int int2char(unsigned int in, unsigned char* out,
++		    CHARSET_PROC_INT2CHAR proc)
++{
++  switch (in)  {
++  case '.': case '*': case '+': case '?':
++  case '[': case ']': case '^': case '$':
++  case '\\':
++    if (!out)
++      return 0;
++    out[0] = '\\';
++    out[1] = in;
++    return 2;
++  default:
++    break;
++  }
++  return (*proc)(in, out);
++}
++
++static int eucjp(unsigned int in, unsigned char* out)
++{
++  return int2char(in, out, eucjp_int2char);
++}
++
++static int cp932(unsigned int in, unsigned char* out)
++{
++  return int2char(in, out, cp932_int2char);
++}
++
++static int utf8(unsigned int in, unsigned char* out)
++{
++  return int2char(in, out, utf8_int2char);
++}
++
++static int charset;
++
++static MIGEMO_PROC_INT2CHAR getproc(int charset)
++{
++
++  switch (charset) {
++  case CHARSET_CP932:
++    return cp932;
++    break;
++  case CHARSET_EUCJP:
++    return eucjp;
++    break;
++  case CHARSET_UTF8:
++    return utf8;
++    break;
++  default:
++    break;
++  }
++  return NULL;
++}
++
++DEFUN ("cmigemo-open", Fcmigemo_open, Scmigemo_open, 1, 1, 0,
++       doc: /* open cmigemo with DICTIONARY.*/ )
++     (Lisp_Object dictionary)
++{
++  MIGEMO_PROC_INT2CHAR int2char;
++
++  if (pmigemo)
++    error ("cmigemo already opened");
++
++  CHECK_STRING(dictionary);
++
++#ifdef WINDOWSNT
++  hMigemo = LoadLibrary(MIGEMO_DLL);
++#else
++  hMigemo = dlopen(MIGEMO_DLL, RTLD_NOW);
++#endif
++  if (hMigemo == NULL)
++    error (MIGEMO_DLL ": can't load");
++
++#ifdef WINDOWSNT
++#define GETPROC(n, t) do { \
++	migemo_ ## n ## _ = (t) GetProcAddress(hMigemo, "migemo_" # n); \
++} while(0)
++#else
++#define GETPROC(n, t) do { \
++	migemo_ ## n ## _ = (t) dlsym(hMigemo, "migemo_" # n); \
++} while(0)
++#endif
++
++  GETPROC(open, migemo* (*)(const char*));
++  GETPROC(close, void (*)(migemo*));
++  GETPROC(query, unsigned char* (*)(migemo*, unsigned char*));
++  GETPROC(release, void (*)(migemo*, unsigned char*));
++  GETPROC(set_operator, int (*)(migemo*, int, unsigned char*));
++  GETPROC(is_enable, int (*)(migemo*));
++  GETPROC(load, int (*)(migemo*, int, char *));
++  GETPROC(setproc_char2int, void (*)(migemo*, MIGEMO_PROC_CHAR2INT));
++  GETPROC(setproc_int2char, void (*)(migemo*, MIGEMO_PROC_INT2CHAR));
++
++  if (!(pmigemo = migemo_open_(SSDATA(dictionary))) ||
++      !migemo_is_enable_(pmigemo)) {
++    pmigemo = NULL;
++    error("could not open cmigemo");
++  }
++  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_OR, (unsigned char *)"\\|");
++  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_NEST_IN, (unsigned char *)"\\(");
++  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_NEST_OUT, (unsigned char *)"\\)");
++  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_NEWLINE, (unsigned char *)"\\s-*");
++
++  charset = charset_detect_file(SSDATA(dictionary));
++
++  if ((int2char = getproc(charset)) != NULL)
++    migemo_setproc_int2char_(pmigemo, int2char);
++
++  return Qt;
++}
++
++DEFUN ("cmigemo-close", Fcmigemo_close, Scmigemo_close, 0, 0, 0,
++       doc: /*close cmigemo.*/)
++     (void)
++{
++  if (!pmigemo)
++    error ("cmigemo was not opened");
++  migemo_close_(pmigemo);
++  pmigemo = NULL;
++#ifdef WINDOWSNT
++  FreeLibrary(hMigemo);
++#else
++  dlclose(hMigemo);
++#endif
++  hMigemo = NULL;
++  return Qt;
++}
++
++DEFUN ("cmigemo-query", Fcmigemo_query, Scmigemo_query, 1, 1, 0,
++       doc: /*query cmigemo about WORD.*/)
++     (Lisp_Object word)
++{
++  char *ans;
++  Lisp_Object temp;
++
++  if (!pmigemo)
++    error ("cmigemo was not opened");
++
++  CHECK_STRING(word);
++
++  temp = word;
++
++  if (STRING_MULTIBYTE (temp))
++    switch (charset) {
++    default:
++    case CHARSET_CP932:
++      temp = code_convert_string_norecord(temp, intern("sjis"), 1);
++      break;
++    case CHARSET_EUCJP:
++      temp = code_convert_string_norecord(temp, intern("euc-japan"), 1);
++      break;
++    case CHARSET_UTF8:
++      break;
++    }
++
++  ans = (char *)migemo_query_(pmigemo, SDATA(temp));
++
++  if (!ans)
++    temp = Qnil;
++  else
++    switch (charset) {
++    default:
++    case CHARSET_CP932:
++      temp = code_convert_string_norecord(temp = build_string(ans),
++					 intern("sjis"), 0);
++      break;
++    case CHARSET_EUCJP:
++      temp = code_convert_string_norecord(temp = build_string(ans),
++					 intern("euc-japan"), 0);
++      break;
++    case CHARSET_UTF8:
++      temp = build_string(ans);
++      break;
++    }
++  migemo_release_(pmigemo, (unsigned char *)ans);
++  return temp;
++}
++
++DEFUN ("cmigemo-load", Fcmigemo_load, Scmigemo_load, 1, 1, 0,
++       doc: /*load a sub DICTIONARY.*/)
++     (Lisp_Object dictionary)
++{
++  MIGEMO_PROC_INT2CHAR int2char;
++
++  if (!pmigemo)
++    error ("cmigemo was not opened");
++
++  CHECK_STRING(dictionary);
++
++  if (migemo_load_(pmigemo, MIGEMO_DICTID_MIGEMO,
++		   SSDATA(dictionary)) == MIGEMO_DICTID_INVALID)
++    error("migemo_load invalid dict %s", SDATA(dictionary));
++
++  /*
++   * Migemo_load resets int2char proc,
++   * then we set it again.
++   */
++
++  int2char = getproc(charset);
++  migemo_setproc_int2char_(pmigemo, int2char);
++
++  return Qt;
++}
++
++void
++syms_of_cmigemo (void)
++{
++  defsubr(&Scmigemo_open);
++  defsubr(&Scmigemo_close);
++  defsubr(&Scmigemo_query);
++  defsubr(&Scmigemo_load);
++}
++#endif /* HAVE_CMIGEMO */
+diff --git a/src/emacs.c b/src/emacs.c
+index b0d1f2f53e8..4cf3c56667e 100644
+--- a/src/emacs.c
++++ b/src/emacs.c
+@@ -256,6 +256,10 @@ char const *emacs_wd;
+ static void sort_args (int argc, char **argv);
+ static void syms_of_emacs (void);
+ 
++#ifdef HAVE_CMIGEMO
++extern void syms_of_cmigemo (void);
++#endif
++
+ /* C99 needs each string to be at most 4095 characters, and the usage
+    strings below are split to not overflow this limit.  */
+ static char const *const usage_message[] =
+@@ -2480,6 +2484,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+       syms_of_pdumper ();
+       syms_of_json ();
+ 
++#ifdef HAVE_CMIGEMO
++      syms_of_cmigemo ();
++#endif /* HAVE_CMIGEMO */
++
+       keys_of_keyboard ();
+ 
+ #ifdef HAVE_NATIVE_COMP
