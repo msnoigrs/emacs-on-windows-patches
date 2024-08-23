@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/08/20
+#+DATE: 2024/08/23
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -11,19 +11,23 @@
 
 * IMEパッチなどを適用したGNU Emacsのビルド方法
 
-GNU Emacsのビルド方法については、[[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][abount patches and how to build emacs on Windows. (Japanese)]]や[[https://github.com/chuntaro/NTEmacs64]]に詳しく書いてありますが、ここにも簡単に記します。日本の組織内では、プロキシを経由するネット環境が多いと思います。そういう環境の人でもつまずきが少なくなるように書きました。64bit環境を想定しています。
+IMEパッチとcmigemoを組み込み、ネイティブコンパイル機能が有効なemacsを作成します。スタティックリンクなバイナリになりますので、msys2をインストールしていない別のWindows環境でも、インストールディレクトリを丸ごとコピーするだけで動作します。
+
+ネイティブコンパイル機能を有効にすると、オリジナルのemacsソースツリーでは、ビルドに失敗します。UCRT版のPKGBULDを参考にビルド可能な方法を探りました。
+
+日本の組織内では、プロキシを経由するネット環境が多いと思います。そういう環境の人でもつまずきが少なくなるように書きました。64bit環境を想定しています。
 
 ** MSYS2のインストール
 
 MSYS2のインストーラーを[[https://www.msys2.org/]]からダウンロードします。
 
-インストールが終わると、スタートメニューには以下の３つが追加されます。（最近はUCRT版もインストールされる）
+インストールが終わると、スタートメニューには以下の5つが追加されます。
 
+- MSYS2 UCRT 64-bit
+- MSYS2 UCRT 32-bit
 - MSYS2 MinGW 64-bit
 - MSYS2 MinGW 32-bit
 - MSYS2 MSYS
-
-上からMinGW(gccが使える最小環境)の64bit環境と32bit環境、MSYS(bashプロンプトと各種UNIXコマンドおよびパッケージ更新環境)です。どれを選択してもminttyが開き、bashが起動します。
 
 以下の説明では、インストール先を =C:\msys64= にしたものとします。
 
@@ -61,7 +65,7 @@ Windowsのエディタで編集する場合、 =C:\msys64\etc\pacman.conf= を�
 
 プロキシのホスト名やポート番号の情報は、利用する環境に合わせてください。プロキシの設定方法は他にも様々ありますので、お好みの方法でかまいません。
 
-** MSYSやMinGWの更新
+** MSYSやUCRT64の更新
 
 メニューからMSYS2 MSYSを起動し =pacman= コマンドで更新します。
 
@@ -97,23 +101,26 @@ $ pacman -Syuu
 
 パッケージのインストールにも =pacman= コマンドを使います。
 
-#+BEGIN_EXAMPLE
 $ pacman -S --needed base-devel \
-  mingw-w64-x86_64-toolchain \
-  mingw-w64-x86_64-autotools \
-  mingw-w64-x86_64-xpm-nox \
-  mingw-w64-x86_64-libtiff \
-  mingw-w64-x86_64-giflib \
-  mingw-w64-x86_64-libpng \
-  mingw-w64-x86_64-libjpeg-turbo \
-  mingw-w64-x86_64-librsvg \
-  mingw-w64-x86_64-lcms2 \
-  mingw-w64-x86_64-jansson \
-  mingw-w64-x86_64-libxml2 \
-  mingw-w64-x86_64-gnutls \
-  mingw-w64-x86_64-zlib \
-  mingw-w64-x86_64-imagemagick \
-  mingw-w64-x86_64-libgccjit
+  mingw-w64-ucrt-x86_64-toolchain \
+  mingw-w64-ucrt-x86_64-autotools \
+  mingw-w64-ucrt-x86_64-xpm-nox \
+  mingw-w64-ucrt-x86_64-libtiff \
+  mingw-w64-ucrt-x86_64-giflib \
+  mingw-w64-ucrt-x86_64-libpng \
+  mingw-w64-ucrt-x86_64-libjpeg-turbo \
+  mingw-w64-ucrt-x86_64-librsvg \
+  mingw-w64-ucrt-x86_64-lcms2 \
+  mingw-w64-ucrt-x86_64-jansson \
+  mingw-w64-ucrt-x86_64-libxml2 \
+  mingw-w64-ucrt-x86_64-gnutls \
+  mingw-w64-ucrt-x86_64-zlib \
+  mingw-w64-ucrt-x86_64-imagemagick \
+  mingw-w64-ucrt-x86_64-libgccjit \
+  mingw-w64-x86_64-freetype \
+  mingw-w64-x86_64-tree-sitter \
+  mingw-w64-x86_64-libwinpthread
+
 #+END_EXAMPLE
 
 =git= もインストールします。
@@ -164,6 +171,8 @@ $ patch -p1 < ../emacs-on-windows-patches/00-emacs-29.4-w32-ime.patch
 $ patch -p1 < ../emacs-on-windows-patches/01-emacs-29.4-disable-w32-ime.patch
 $ patch -p1 < ../emacs-on-windows-patches/02-emacs-29.4-dontusereg.patch
 $ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.4-cmigemo.patch
+$ patch -p1 < ../emacs-on-windows-patches/04-emacs-29.4-mingw32-remove-check.patch
+$ patch -p1 < ../emacs-on-windows-patches/001-ucrt.patch
 $ patch -p1 < ../emacs-on-windows-patches/Fix-MinGW-build-with-GCC14-and-later.patch
 #+END_EXAMPLE
 
@@ -249,8 +258,9 @@ emacsをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
 $ cd ../emacs-emacs-29.4
-$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0' LDFLAGS='-s' ./configure --with-native-compilation --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules
-$ make bootstrap
+$ ./autogen.sh
+$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0 -Wp,-D_FORTIFY_SOURCE=2 -fno-optimize-sibling-calls' LDFLAGS='-s' ./configure --host="x86_64-w64-mingw32" --build="x86_64-w64-mingw32" --with-native-compilation=aot --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules --with-tree-sitter
+$ make actual-all
 $ make install-strip prefix=/c/emacs
 #+END_EXAMPLE
 
