@@ -101,6 +101,7 @@ $ pacman -Syuu
 
 パッケージのインストールにも =pacman= コマンドを使います。
 
+#+BEGIN_EXAMPLE
 $ pacman -S --needed base-devel \
   mingw-w64-ucrt-x86_64-toolchain \
   mingw-w64-ucrt-x86_64-autotools \
@@ -120,7 +121,6 @@ $ pacman -S --needed base-devel \
   mingw-w64-x86_64-freetype \
   mingw-w64-x86_64-tree-sitter \
   mingw-w64-x86_64-libwinpthread
-
 #+END_EXAMPLE
 
 =git= もインストールします。
