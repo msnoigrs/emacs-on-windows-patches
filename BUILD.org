@@ -118,9 +118,9 @@ $ pacman -S --needed base-devel \
   mingw-w64-ucrt-x86_64-zlib \
   mingw-w64-ucrt-x86_64-imagemagick \
   mingw-w64-ucrt-x86_64-libgccjit \
-  mingw-w64-x86_64-freetype \
-  mingw-w64-x86_64-tree-sitter \
-  mingw-w64-x86_64-libwinpthread
+  mingw-w64-ucrt-x86_64-freetype \
+  mingw-w64-ucrt-x86_64-tree-sitter \
+  mingw-w64-ucrt-x86_64-libwinpthread
 #+END_EXAMPLE
 
 =git= もインストールします。
