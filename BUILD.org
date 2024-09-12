@@ -250,7 +250,7 @@ $ make mingw-all
 $ make mingw-install
 #+END_EXAMPLE
 
-=/usr/local/bin/cmigemo.exe= 、 =/usr/local/bin/migemo.dll= などがインストールされます。
+=/usr/local/bin/cmigemo.exe= 、 =/usr/local/bin/migemo.dll= 、 =/usr/local/include/migemo.h= などがインストールされます。
 
 *** Emacsのビルド
 
@@ -259,7 +259,7 @@ emacsをビルドしてインストールします。
 #+BEGIN_EXAMPLE
 $ cd ../emacs-emacs-29.4
 $ ./autogen.sh
-$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0 -Wp,-D_FORTIFY_SOURCE=2 -fno-optimize-sibling-calls' LDFLAGS='-s' ./configure --host="x86_64-w64-mingw32" --build="x86_64-w64-mingw32" --with-native-compilation=aot --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules --with-tree-sitter
+$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0 -Wp,-D_FORTIFY_SOURCE=2 -fno-optimize-sibling-calls -I/usr/local/include' LDFLAGS='-s' ./configure --host="x86_64-w64-mingw32" --build="x86_64-w64-mingw32" --with-native-compilation=aot --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules --with-tree-sitter --with-cmigemo
 $ make actual-all
 $ make install-strip prefix=/c/emacs
 #+END_EXAMPLE
@@ -277,3 +277,6 @@ emacsから見たホームディレクトリ =~/= は、 =C:\Users\ログイン�
 したがって設定ファイルの位置は =C:\Users\ログインユーザー名\AppData\Roaming\.emacs.d\init.el= です。
 
 ちなみにMSYS2のホームディレクトリ =~/= は、 =C:\msys64\home\ログインユーザー名= です。Emacsのビルドを行ったディレクトリ =~/emacs= は、 =C:\msys64\home\ログインユーザー名\emacs= の位置にあります。ビルド作業が終わったら、削除してもかまいません。
+
+migemoを利用する場合は、 =load-path= に含まれるディレクトリに =cmigemo.el= と =migemo-isearch-auto-enable.el= を置いてください。
+ =cmigemo.el= と =migemo-isearch-auto-enable.el= の使い方は、[[https://github.com/rzl24ozi/cmigemo-module/README.md]] に従います。
