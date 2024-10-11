@@ -222,10 +222,10 @@ $ gzip -d SKK-JISYO.L.gz
 ** ビルド
 
 #+BEGIN_note
-ここからは、MinGWの環境で作業します。
+ここからは、UCRT64の環境で作業します。
 #+END_note
 
-メニューからMSYS2 MinGW 64-bitを起動します。
+メニューからMSYS2 UCRT 64-bitを起動します。
 
 *** nkfのビルド(cmigemoを組み込む場合)
 
@@ -257,9 +257,13 @@ $ make mingw-install
 emacsをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
+$ export MAKEFLAGS=-j9
+$ export CC=gcc
+$ export CFLAGS="-march=native -mtune=native -O2 -pipe -static -s -g0 -fstack-protector-strong -Wp,-D__USE_MINGW_ANSI_STDIO=1 -I/usr/local/include -fno-optimize-sibling-calls -Wno-error=implicit-function-declaration"
+$ export LDFLAGS="-s"
 $ cd ../emacs-emacs-29.4
 $ ./autogen.sh
-$ CFLAGS='-O2 -march=x86-64 -mtune=corei7 -static -s -g0 -Wp,-D_FORTIFY_SOURCE=2 -fno-optimize-sibling-calls -I/usr/local/include' LDFLAGS='-s' ./configure --host="x86_64-w64-mingw32" --build="x86_64-w64-mingw32" --with-native-compilation=aot --with-gnutls --with-imagemagick --with-jpeg --with-png --with-rsvg --with-tiff --with-wide-int --with-xft --with-xml2 --with-xpm --without-dbus --without-pop --without-compress-install --with-modules --with-tree-sitter --with-cmigemo
+$ ./configure --prefix=/c/emacs --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --with-modules --without-dbus --without-pop --with-wide-int --with-imagemagick --with-jpeg --with-png --with-rsvg --with-xml2 --with-xpm --without-compress-install --with-tree-sitter --with-native-compilation=aot --with-cmigemo
 $ make actual-all
 $ make install-strip prefix=/c/emacs
 #+END_EXAMPLE
