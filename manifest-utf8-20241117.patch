@@ -1,0 +1,24 @@
+diff --git a/nt/emacs-x64.manifest b/nt/emacs-x64.manifest
+index 57ce3337c55..42e0d18adf3 100644
+--- a/nt/emacs-x64.manifest
++++ b/nt/emacs-x64.manifest
+@@ -35,6 +35,7 @@
+   <asmv3:application>
+     <asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">
+       <dpiAware>true</dpiAware>
++      <activeCodePage xmlns="http://schemas.microsoft.com/SMI/2019/WindowsSettings">UTF-8</activeCodePage>
+     </asmv3:windowsSettings>
+   </asmv3:application>
+ </assembly>
+diff --git a/nt/emacs-x86.manifest b/nt/emacs-x86.manifest
+index 1be75b10629..6de7fbe4390 100644
+--- a/nt/emacs-x86.manifest
++++ b/nt/emacs-x86.manifest
+@@ -35,6 +35,7 @@
+   <asmv3:application>
+     <asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">
+       <dpiAware>true</dpiAware>
++      <activeCodePage xmlns="http://schemas.microsoft.com/SMI/2019/WindowsSettings">UTF-8</activeCodePage>
+     </asmv3:windowsSettings>
+   </asmv3:application>
+ </assembly>

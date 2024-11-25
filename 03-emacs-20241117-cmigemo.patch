@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index a71881740d9..c7672eca8de 100644
+index 0f8ff9132e4..8b19b47e9c1 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -602,6 +602,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
@@ -10,7 +10,7 @@ index a71881740d9..c7672eca8de 100644
  
  # Find out of Android support is enabled and mailutils has defaulted
  # to `yes-unless-android'.  Disable it if so.
-@@ -5427,6 +5428,14 @@ fi
+@@ -5441,6 +5442,14 @@ fi
  AC_SUBST([LIBPNG])
  AC_SUBST([PNG_CFLAGS])
  
@@ -25,7 +25,7 @@ index a71881740d9..c7672eca8de 100644
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -7777,7 +7786,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
+@@ -7793,7 +7802,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
   M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
   SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
   UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINPUT2 XPM XWIDGETS X_TOOLKIT \
@@ -34,7 +34,7 @@ index a71881740d9..c7672eca8de 100644
  
      case $opt in
        PDUMPER) val=${with_pdumper} ;;
-@@ -7857,6 +7866,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -7873,6 +7882,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
    Does Emacs use the GMP library?                         ${HAVE_GMP}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}
@@ -520,7 +520,7 @@ index 00000000000..37580d2ef0d
 +}
 +#endif /* HAVE_CMIGEMO */
 diff --git a/src/emacs.c b/src/emacs.c
-index b0d1f2f53e8..4cf3c56667e 100644
+index bdd9eee10c4..ec226c3c414 100644
 --- a/src/emacs.c
 +++ b/src/emacs.c
 @@ -256,6 +256,10 @@ char const *emacs_wd;
@@ -534,7 +534,7 @@ index b0d1f2f53e8..4cf3c56667e 100644
  /* C99 needs each string to be at most 4095 characters, and the usage
     strings below are split to not overflow this limit.  */
  static char const *const usage_message[] =
-@@ -2480,6 +2484,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+@@ -2481,6 +2485,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
        syms_of_pdumper ();
        syms_of_json ();
  

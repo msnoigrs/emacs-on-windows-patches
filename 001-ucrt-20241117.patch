@@ -1,0 +1,27 @@
+diff --git a/src/sysdep.c b/src/sysdep.c
+index bb4892af4af..6edf178702e 100644
+--- a/src/sysdep.c
++++ b/src/sysdep.c
+@@ -2983,8 +2983,10 @@ close_output_streams (void)
+ #else /* !__ANDROID__ */
+   if (close_stream (stdout) != 0)
+     {
++#ifndef _UCRT // XXX: close_stream(stdout) fails for some reason
+       emacs_perror ("Write error to standard output");
+       _exit (EXIT_FAILURE);
++#endif
+     }
+ 
+   /* Do not close stderr if addresses are being sanitized, as the
+@@ -2993,7 +2995,11 @@ close_output_streams (void)
+   if (err | (ADDRESS_SANITIZER
+ 	     ? fflush (stderr) != 0 || ferror (stderr)
+ 	     : close_stream (stderr) != 0))
++#ifndef _UCRT // XXX: close_stream(stderr) fails for some reason
+     _exit (EXIT_FAILURE);
++#else
++    ;
++#endif
+ #endif /* __ANDROID__ */
+ }
+ 

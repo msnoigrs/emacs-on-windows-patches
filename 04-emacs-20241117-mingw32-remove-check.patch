@@ -1,8 +1,8 @@
 diff --git a/configure.ac b/configure.ac
-index 6397991340f..13623295f65 100644
+index 8b19b47e9c1..f4991f18ee8 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3759,6 +3759,7 @@ AC_DEFUN
+@@ -3772,6 +3772,7 @@ if test "${HAVE_X11}" = "yes" || test "${HAVE_NS}" = "yes" || test "${HAVE_W32}"
         EMACS_CHECK_MODULES([IMAGEMAGICK], [Wand >= 6.3.5 Wand != 6.8.2])
      fi
  
@@ -10,7 +10,7 @@ index 6397991340f..13623295f65 100644
      if test $HAVE_IMAGEMAGICK = yes; then
        OLD_CFLAGS=$CFLAGS
        OLD_LIBS=$LIBS
-@@ -3793,6 +3794,7 @@ AC_DEFUN
+@@ -3806,6 +3807,7 @@ MagickMergeImageLayers,MagickAutoOrientImage],
        IMAGEMAGICK_CFLAGS=
        IMAGEMAGICK_LIBS=
      fi
@@ -18,7 +18,7 @@ index 6397991340f..13623295f65 100644
      AC_SUBST([IMAGEMAGICK_CFLAGS])
      AC_SUBST([IMAGEMAGICK_LIBS])
    fi
-@@ -5253,13 +5255,17 @@ AC_DEFUN
+@@ -5267,13 +5269,17 @@ fi
  
  if test "${with_native_compilation}" = "default"; then
      # Check if libgccjit is available.
@@ -36,7 +36,7 @@ index 6397991340f..13623295f65 100644
      if test "$with_unexec" = yes; then
        with_native_compilation=no
      fi
-@@ -5314,12 +5320,16 @@ AC_DEFUN
+@@ -5328,12 +5334,16 @@ if test "${with_native_compilation}" != "no"; then
  
      # In the default case we already checked
      if test "${with_native_compilation}" != "default"; then
