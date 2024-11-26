@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/08/23
+#+DATE: 2024/11/26
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -52,7 +52,7 @@ export NO_PROXY=${no_proxy}
 不幸にも中間者攻撃型のプロキシ環境の中にいて、偽ルート証明書がインストールされている場合は、 =pacman= の設定ファイルを編集し、証明書確認処理をオフにします。
 
 #+BEGIN_EXAMPLE
-$ vim /etc/pacman.conf
+vim /etc/pacman.conf
 #+END_EXAMPLE
 
 =XferCommand= の行を探し、 =wget= に =--no-check-certificate= オプションを追加します。
@@ -70,7 +70,7 @@ Windowsのエディタで編集する場合、 =C:\msys64\etc\pacman.conf= を�
 メニューからMSYS2 MSYSを起動し =pacman= コマンドで更新します。
 
 #+BEGIN_EXAMPLE
-$ pacman -Syuu
+pacman -Syuu
 #+END_EXAMPLE
 
 パッケージデータベースの同期がはじまり、更新対象のパッケージが表示されます。
@@ -102,7 +102,7 @@ $ pacman -Syuu
 パッケージのインストールにも =pacman= コマンドを使います。
 
 #+BEGIN_EXAMPLE
-$ pacman -S --needed base-devel \
+pacman -S --needed base-devel \
   mingw-w64-ucrt-x86_64-toolchain \
   mingw-w64-ucrt-x86_64-autotools \
   mingw-w64-ucrt-x86_64-xpm-nox \
@@ -120,7 +120,8 @@ $ pacman -S --needed base-devel \
   mingw-w64-ucrt-x86_64-libgccjit \
   mingw-w64-ucrt-x86_64-freetype \
   mingw-w64-ucrt-x86_64-tree-sitter \
-  mingw-w64-ucrt-x86_64-libwinpthread
+  mingw-w64-ucrt-x86_64-libwinpthread \
+  mingw-w64-ucrt-x86_64-sqlite3
 #+END_EXAMPLE
 
 =git= もインストールします。
@@ -134,8 +135,8 @@ $ pacman -S git
 以下、作業用ディレクトリを =~/emacs= とします。
 
 #+BEGIN_EXAMPLE
-$ mkdir ~/emacs
-$ cd ~/emacs
+mkdir ~/emacs
+cd ~/emacs
 #+END_EXAMPLE
 
 *** Emacsソースツリーを展開
@@ -144,13 +145,13 @@ emacsのソースをダウンロードします。
 ここ[[https://github.com/emacs-mirror/emacs/tags]]からダウンロード可能です。
 
 #+BEGIN_EXAMPLE
-$ wget https://github.com/emacs-mirror/emacs/tags/emacs-29.4.tar.gz
+wget https://github.com/emacs-mirror/emacs/tags/emacs-29.4.tar.gz
 #+END_EXAMPLE
 
 展開します。
 
 #+BEGIN_EXAMPLE
-$ tar xf emacs-29.4.tar.gz
+tar xf emacs-29.4.tar.gz
 #+END_EXAMPLE
 
 =emacs-emacs-29.4= ディレクトリの下にソースツリーができます。
@@ -158,22 +159,38 @@ $ tar xf emacs-29.4.tar.gz
 本リポジトリのパッチを取得します。gitを使う例を示しますが、[[https://github.com/msnoigrs/emacs-on-windows-patches]]からブラウザを使ってダウンロードしてもかまいません。
 
 #+BEGIN_EXAMPLE
-$ git clone https://github.com/msnoigrs/emacs-on-windows-patches.git
+git clone https://github.com/msnoigrs/emacs-on-windows-patches.git
 #+END_EXAMPLE
 
 gitにプロキシの設定が必要な場合は、[[https://gist.github.com/evantoli/f8c23a37eb3558ab8765][Configure Git to use a proxy]]を参考にして設定してください。
 
 パッチを適用します。
 
+バージョン29.4の場合。
+
 #+BEGIN_EXAMPLE
-$ cd emacs-emacs-29.4
-$ patch -p1 < ../emacs-on-windows-patches/00-emacs-29.4-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/01-emacs-29.4-disable-w32-ime.patch
-$ patch -p1 < ../emacs-on-windows-patches/02-emacs-29.4-dontusereg.patch
-$ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.4-cmigemo.patch
-$ patch -p1 < ../emacs-on-windows-patches/04-emacs-29.4-mingw32-remove-check.patch
-$ patch -p1 < ../emacs-on-windows-patches/001-ucrt.patch
-$ patch -p1 < ../emacs-on-windows-patches/Fix-MinGW-build-with-GCC14-and-later.patch
+cd emacs-emacs-29.4
+patch -p1 < ../emacs-on-windows-patches/00-emacs-29.4-w32-ime.patch
+patch -p1 < ../emacs-on-windows-patches/01-emacs-29.4-disable-w32-ime.patch
+patch -p1 < ../emacs-on-windows-patches/02-emacs-29.4-dontusereg.patch
+patch -p1 < ../emacs-on-windows-patches/03-emacs-29.4-cmigemo.patch
+patch -p1 < ../emacs-on-windows-patches/04-emacs-29.4-mingw32-remove-check.patch
+patch -p1 < ../emacs-on-windows-patches/001-ucrt.patch
+patch -p1 < ../emacs-on-windows-patches/Fix-MinGW-build-with-GCC14-and-later.patch
+patch -p1 < ../emacs-on-windows-patches/manifest-utf8-20241117.patch
+#+END_EXAMPLE
+
+バージョン31.0.50の場合。
+
+#+BEGIN_EXAMPLE
+cd emacs
+patch -p1 < ../emacs-on-windows-patches/00-emacs-20241117-w32-ime.patch
+patch -p1 < ../emacs-on-windows-patches/01-emacs-20241117-disable-w32-ime.patch
+patch -p1 < ../emacs-on-windows-patches/02-emacs-20241117-dontusereg.patch
+patch -p1 < ../emacs-on-windows-patches/03-emacs-20241117-cmigemo.patch
+patch -p1 < ../emacs-on-windows-patches/04-emacs-20241117-mingw32-remove-check.patch
+patch -p1 < ../emacs-on-windows-patches/001-ucrt-20241117.patch
+patch -p1 < ../emacs-on-windows-patches/manifest-utf8-20241117.patch
 #+END_EXAMPLE
 
 これでパッチ済みのソースツリーができあがります。
@@ -182,14 +199,14 @@ $ patch -p1 < ../emacs-on-windows-patches/Fix-MinGW-build-with-GCC14-and-later.p
 *** w32-ime.elを取得
 
 #+BEGIN_EXAMPLE
-$ cd ..
-$ git clone https://github.com/trueroad/w32-ime.el
+cd ..
+git clone https://github.com/trueroad/w32-ime.el
 #+END_EXAMPLE
 
 =w32-ime.el= をコピーします。
 
 #+BEGIN_EXAMPLE
-$ cp w32-ime.el/w32-ime.el emacs-emacs-29.4/lisp/international/w32-ime.el
+cp w32-ime.el/w32-ime.el emacs-emacs-29.4/lisp/international/w32-ime.el
 #+END_EXAMPLE
 
 *** nkfソースツリーを展開(cmigemoを組み込む場合)
@@ -199,8 +216,8 @@ nkfが後のcmigemoのビルド時に必要ですので、準備します。
 nkfのソースをダウンロードします。
 
 #+BEGIN_EXAMPLE
-$ wget http://iij.dl.osdn.jp/nkf/70406/nkf-2.1.5.tar.gz
-$ tar zxf nkf-2.1.5.tar.gz
+wget http://iij.dl.osdn.jp/nkf/70406/nkf-2.1.5.tar.gz
+tar xf nkf-2.1.5.tar.gz
 #+END_EXAMPLE
 
 *** cmigemoソースツリーを展開(cmigemoを組み込む場合)
@@ -208,15 +225,15 @@ $ tar zxf nkf-2.1.5.tar.gz
 cmigemoを組み込む場合に必要ですので、準備します。
 
 #+BEGIN_EXAMPLE
-$ git clone https://github.com/koron/cmigemo.git
+git clone https://github.com/koron/cmigemo.git
 #+END_EXAMPLE
 
 cmigemoのビルド中に、SKK辞書のダウンロードが行われます。プロキシなどの事情により失敗する可能性がある場合、先にダウンロードしておくとよいです。
 
 #+BEGIN_EXAMPLE
-$ cd cmigemo/dict
-$ wget http://openlab.ring.gr.jp/skk/dic/SKK-JISYO.L.gz
-$ gzip -d SKK-JISYO.L.gz
+cd cmigemo/dict
+wget http://openlab.ring.gr.jp/skk/dic/SKK-JISYO.L.gz
+gzip -d SKK-JISYO.L.gz
 #+END_EXAMPLE
 
 ** ビルド
@@ -232,9 +249,9 @@ $ gzip -d SKK-JISYO.L.gz
 nkfをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd nkf-2.1.5
-$ make
-$ make install
+cd nkf-2.1.5
+make
+make install
 #+END_EXAMPLE
 
 =/usr/local/bin/nkf.exe= にインストールされます。
@@ -244,10 +261,10 @@ $ make install
 cmigemoをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ cd ../cmigemo
-$ ./configure --prefix=/usr/local
-$ make mingw-all
-$ make mingw-install
+cd ../cmigemo
+./configure --prefix=/usr/local
+make mingw-all
+make mingw-install
 #+END_EXAMPLE
 
 =/usr/local/bin/cmigemo.exe= 、 =/usr/local/bin/migemo.dll= 、 =/usr/local/include/migemo.h= などがインストールされます。
@@ -257,15 +274,15 @@ $ make mingw-install
 emacsをビルドしてインストールします。
 
 #+BEGIN_EXAMPLE
-$ export MAKEFLAGS=-j9
-$ export CC=gcc
-$ export CFLAGS="-march=native -mtune=native -O2 -pipe -static -s -g0 -fstack-protector-strong -Wp,-D__USE_MINGW_ANSI_STDIO=1 -I/usr/local/include -fno-optimize-sibling-calls -Wno-error=implicit-function-declaration"
-$ export LDFLAGS="-s"
-$ cd ../emacs-emacs-29.4
-$ ./autogen.sh
-$ ./configure --prefix=/c/emacs --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --with-modules --without-dbus --without-pop --with-wide-int --with-imagemagick --with-jpeg --with-png --with-rsvg --with-xml2 --with-xpm --without-compress-install --with-tree-sitter --with-native-compilation=aot --with-cmigemo
-$ make actual-all
-$ make install-strip prefix=/c/emacs
+export MAKEFLAGS=-j9
+export CC=gcc
+export CFLAGS="-march=native -mtune=native -O2 -pipe -static -s -g0 -fstack-protector-strong -Wp,-D__USE_MINGW_ANSI_STDIO=1 -I/usr/local/include -fno-optimize-sibling-calls -Wno-error=implicit-function-declaration"
+export LDFLAGS="-s"
+cd ../emacs-emacs-29.4
+./autogen.sh
+./configure --prefix=/c/emacs --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --with-modules --without-dbus --without-pop --with-wide-int --with-imagemagick --with-jpeg --with-png --with-rsvg --with-xml2 --with-xpm --without-compress-install --with-tree-sitter --with-native-compilation=aot --with-cmigemo
+make actual-all
+make install-strip prefix=/c/emacs
 #+END_EXAMPLE
 
 CFLAGSの値やconfigureのオプションは、環境とお好みに合わせて変更してください。
@@ -273,14 +290,15 @@ CFLAGSの値やconfigureのオプションは、環境とお好みに合わせ�
 
 これでインストールは完了です。
 
+*** migemoを利用する場合に必要なelisp
+
+migemoを利用する場合は、 =load-path= に含まれるディレクトリに =cmigemo.el= と =migemo-isearch-auto-enable.el= を置いてください。
+ =cmigemo.el= と =migemo-isearch-auto-enable.el= の使い方は、[[https://github.com/rzl24ozi/cmigemo-module/README.md]] に従います。
+
 * emacsを起動してみる
 
 =C:\emacs\bin\runemacs.exe= を起動します。
 
-emacsから見たホームディレクトリ =~/= は、 =C:\Users\ログインユーザー名\AppData\Roaming= です。
-したがって設定ファイルの位置は =C:\Users\ログインユーザー名\AppData\Roaming\.emacs.d\init.el= です。
-
-ちなみにMSYS2のホームディレクトリ =~/= は、 =C:\msys64\home\ログインユーザー名= です。Emacsのビルドを行ったディレクトリ =~/emacs= は、 =C:\msys64\home\ログインユーザー名\emacs= の位置にあります。ビルド作業が終わったら、削除してもかまいません。
-
-migemoを利用する場合は、 =load-path= に含まれるディレクトリに =cmigemo.el= と =migemo-isearch-auto-enable.el= を置いてください。
- =cmigemo.el= と =migemo-isearch-auto-enable.el= の使い方は、[[https://github.com/rzl24ozi/cmigemo-module/README.md]] に従います。
+=HOME= 環境変数に設定された位置がホームディレクトリと評価されます。emacsから見たデフォルトのホームディレクトリは、 =C:\Users\ログインユーザー名\AppData\Roaming= です。
+したがってデフォルトの設定ファイルの位置は =C:\Users\ログインユーザー名\AppData\Roaming\.emacs.d\init.el= です。
+ちなみにMSYS2のホームディレクトリ =~/= は、 =C:\msys64\home\ログインユーザー名= です。同じ位置に揃える場合は、 =HOME= 環境変数を =C:\msys64\home\ログインユーザー名= に設定するとよいでしょう。

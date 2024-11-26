@@ -1,7 +1,7 @@
 #+TITLE: Japanese IME patch and others for building with MinGW on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/08/23
+#+DATE: 2024/11/26
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -9,7 +9,7 @@
 #+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
 #+OPTIONS: author:t creator:nil email:nil date:t
 
-* GNU Emacs 29.4をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ - W32-IME組み込み
+* GNU Emacs 29.4(あるいは31.0.50)をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ - W32-IME組み込み
 
 飛躍的に高速化したnative compileをするemacs、いわゆるgccemacsですが、Windowsでも自前でコンパイルすることで動作します。ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。
 今回からUCRT64環境でビルドすることにしました。
@@ -83,6 +83,14 @@ UCRT版のソースに付属するパッチです。
 MinGWのGCC14.1以降だとコンパイルに失敗する事象を回避します。
 [[https://mail.gnu.org/archive/html/bug-gnu-emacs/2024-05/msg01179.html]]
 [[https://github.com/emacs-mirror/emacs/commit/5216903ae6c3f91ebefb1152af40753f723cbc39]]
+
+** manifest-utf8-20241117.patch
+
+emacsからプロセスを起動すると、UTF-8からCP932に変換されてしまう現象を回避するパッチです。manifestファイルにUTF-8を指定することで解決します。 =M-!= に続けて =echo '日本語'= を実行した結果が文字化けする場合には、この対処をすることで回避可能です。msys2で配布されているemacsバイナリは同じ問題を含んでいます。
+
+この辺りの事情は以下のサイトが詳しいです。
+- https://ujimushisradjp.hatenablog.jp/entry/2023/12/14/003216
+- https://gist.github.com/trueroad/d309d1931100634c2cd1058a0620c663
 
 * ビルド方法
 
