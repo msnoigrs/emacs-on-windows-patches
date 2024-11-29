@@ -1,3 +1,6 @@
+(eval-when-compile
+  (require 'cl-lib))
+
 (defvar migemo-directory
       (if (eq system-type 'windows-nt)
 	  (concat data-directory "migemo")
@@ -32,7 +35,9 @@
   (if (fboundp 'cmigemo-open)
       (when (not cmigemo-initialized)
 	(setq cmigemo-initialized
-	      (cmigemo-open migemo-dictionary))
+	      (cmigemo-open migemo-dictionary
+                        (cl-loop for x in migemo-options
+                                 when (or (string= x "-n") (string= x "--nonewline")) return t)))
         (when migemo-user-dictionary
 	  (if (consp migemo-user-dictionary)
 	      (dolist (d migemo-user-dictionary)

@@ -60,7 +60,7 @@ new file mode 100644
 index 00000000000..37580d2ef0d
 --- /dev/null
 +++ b/src/cmigemo.c
-@@ -0,0 +1,458 @@
+@@ -0,0 +1,459 @@
 +#ifdef NULL
 +#undef NULL
 +#endif
@@ -360,9 +360,9 @@ index 00000000000..37580d2ef0d
 +  return NULL;
 +}
 +
-+DEFUN ("cmigemo-open", Fcmigemo_open, Scmigemo_open, 1, 1, 0,
++DEFUN ("cmigemo-open", Fcmigemo_open, Scmigemo_open, 1, 2, 0,
 +       doc: /* open cmigemo with DICTIONARY.*/ )
-+     (Lisp_Object dictionary)
++     (Lisp_Object dictionary, Lisp_Object nonewline)
 +{
 +  MIGEMO_PROC_INT2CHAR int2char;
 +
@@ -407,7 +407,8 @@ index 00000000000..37580d2ef0d
 +  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_OR, (unsigned char *)"\\|");
 +  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_NEST_IN, (unsigned char *)"\\(");
 +  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_NEST_OUT, (unsigned char *)"\\)");
-+  migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_NEWLINE, (unsigned char *)"\\s-*");
++  if (NILP (nonewline))
++    migemo_set_operator_(pmigemo, MIGEMO_OPINDEX_NEWLINE, (unsigned char *)"\\s-*");
 +
 +  charset = charset_detect_file(SSDATA(dictionary));
 +

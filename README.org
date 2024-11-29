@@ -1,7 +1,7 @@
 #+TITLE: Japanese IME patch and others for building with MinGW on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/11/26
+#+DATE: 2024/11/29
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -20,7 +20,7 @@ IMEやcmigemoに関するパッチは、以下の情報由来のものです。E
 
 - [[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][about patches and how to build emacs on Windows. (Japanese)]] :: 日本語Windows向けのIMEパッチやcmigemoを組み込むためのパッチ情報と、Windows上でemacsをコンパイルして使うための情報が丁寧に記されています。
 
-** 00-emacs-29.4-w32-ime.patch
+** 00-emacs-29.4-w32-ime.patch, 00-emacs-20241117-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/ee4457df2f54c5f3ca0d02b56e371233][emacs-26.1-rc1-w32-ime.diff]]と意味的に同じものです。
 
@@ -37,7 +37,7 @@ configureに以下のオプションを追加しています。\\
 --without-documentfeed : DOCUMENTFEED無効
 #+END_EXAMPLE
 
-** 01-emacs-29.4-disable-w32-ime.patch
+** 01-emacs-29.4-disable-w32-ime.patch, 01-emacs-20241117-disable-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/da3370acb767096ce11fe867c6d9da6a][emacs-26.1-rc1-disable-w32-ime.diff]]と意味的に同じものです。
 
@@ -51,11 +51,11 @@ configureに以下のオプションを追加しています。\\
 (w32-ime-disabled-p) ; IMEが無効化されている場合 t を返す
 #+END_EXAMPLE
 
-** 02-emacs-29.4-dontusereg.patch
+** 02-emacs-29.4-dontusereg.patch, 02-emacs-20241117-dontusereg.patch
 
 addpm.exeの処理において各種パスのレジストリ登録処理を省きます。addpm.exeにはスタートメニューにemacsのショートカットを作成するといった機能があります。
 
-** 03-emacs-29.4-cmigemo.patch
+** 03-emacs-29.4-cmigemo.patch, 03-emacs-20241117-cmigemo.patch
 
 [[https://gist.github.com/37317c89325bfb3f02f4142c5764b7b5][emacs-26.1-rc1-cmigemo.diff]]と意味的に同じものです。
 
@@ -66,17 +66,19 @@ addpm.exeの処理において各種パスのレジストリ登録処理を省�
 
 私はこのcmigemo組み込みパッチを好んで使っていますが、他に同rzl24ozi氏による[[https://github.com/rzl24ozi/cmigemo-module][dynamic module版]]を使う方法もあります。
 
-** 04-emacs-29.4-mingw32-remove-check.patch
+オリジナルのcmigemo組み込みパッチは、 cmigemoコマンドの =--nonewline= オプション相当の機能が実現できません。実現できるように =cmigemo-open= の2つ目の引数で指定できるように修正しました。 =cmigemo.el= も =cmigemo-open= を呼び出している箇所を修正しました。 =migemo-options= 変数に =--nonewline= か =-n= が含まれている場合に、 =cmigemo-open= の2つ目の引数が =t= となります。ちなみにオリジナルパッチでは =migemo-options= 変数は参照されませんでしたが、この修正によりこの目的でのみ参照します。
+
+=--nonewline= 機能は、migemoの出力結果を利用してripgrepを呼び出す場合に使います。 =--nonewline= を指定しない場合、migemoが出力する正規表現にripgrep非互換の表現が含まれてしまいます。修正をすることで =consult-ripgrep= をmigemoと組み合わせて利用できるようになりました。
+
+=cmigemo.el= =migemo-isearch-auto-enable.el= はこのリポジトリのものを利用してください。
+
+** 04-emacs-29.4-mingw32-remove-check.patch, 04-emacs-20241117-mingw32-remove-check.patch
 
 configureスクリプトで行われる、imagemagickとlibgccjitに対するチェック処理がWindowsでは正常に行われないため、それらチェック処理を省きます。
 
-** 001-ucrt.patch
+** 001-ucrt.patch, 001-ucrt-20241117.patch
 
 UCRT版のソースに付属するパッチです。
-
-#+BEGIN_QUOTE
-
-#+END_QUOTE
 
 ** Fix-MinGW-build-with-GCC14-and-later.patch
 
