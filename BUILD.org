@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/11/26
+#+DATE: 2025/02/14
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -177,20 +177,20 @@ patch -p1 < ../emacs-on-windows-patches/03-emacs-29.4-cmigemo.patch
 patch -p1 < ../emacs-on-windows-patches/04-emacs-29.4-mingw32-remove-check.patch
 patch -p1 < ../emacs-on-windows-patches/001-ucrt.patch
 patch -p1 < ../emacs-on-windows-patches/Fix-MinGW-build-with-GCC14-and-later.patch
-patch -p1 < ../emacs-on-windows-patches/manifest-utf8-20241117.patch
+patch -p1 < ../emacs-on-windows-patches/manifest-utf8.patch
 #+END_EXAMPLE
 
 バージョン31.0.50の場合。
 
 #+BEGIN_EXAMPLE
 cd emacs
-patch -p1 < ../emacs-on-windows-patches/00-emacs-20241117-w32-ime.patch
-patch -p1 < ../emacs-on-windows-patches/01-emacs-20241117-disable-w32-ime.patch
-patch -p1 < ../emacs-on-windows-patches/02-emacs-20241117-dontusereg.patch
-patch -p1 < ../emacs-on-windows-patches/03-emacs-20241117-cmigemo.patch
-patch -p1 < ../emacs-on-windows-patches/04-emacs-20241117-mingw32-remove-check.patch
-patch -p1 < ../emacs-on-windows-patches/001-ucrt-20241117.patch
-patch -p1 < ../emacs-on-windows-patches/manifest-utf8-20241117.patch
+patch -p1 < ../emacs-on-windows-patches/00-emacs-20250214-w32-ime.patch
+patch -p1 < ../emacs-on-windows-patches/01-emacs-20250214-disable-w32-ime.patch
+patch -p1 < ../emacs-on-windows-patches/02-emacs-20250214-dontusereg.patch
+patch -p1 < ../emacs-on-windows-patches/03-emacs-20250214-cmigemo.patch
+patch -p1 < ../emacs-on-windows-patches/04-emacs-20250214-mingw32-remove-check.patch
+patch -p1 < ../emacs-on-windows-patches/001-ucrt-20250214.patch
+patch -p1 < ../emacs-on-windows-patches/manifest-utf8.patch
 #+END_EXAMPLE
 
 これでパッチ済みのソースツリーができあがります。

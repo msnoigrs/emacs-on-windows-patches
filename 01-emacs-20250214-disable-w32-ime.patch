@@ -1,5 +1,5 @@
 diff --git a/src/w32fns.c b/src/w32fns.c
-index 2819d268939..592159f3686 100644
+index 6265301924c..3854a8140d3 100644
 --- a/src/w32fns.c
 +++ b/src/w32fns.c
 @@ -145,6 +145,8 @@ static BOOL w32_perform_reconversion (HWND, RECONVERTSTRING*);
@@ -52,7 +52,7 @@ index 2819d268939..592159f3686 100644
      default:
  
  #ifdef USE_W32_IME
-@@ -9453,6 +9468,47 @@ conversion_agent_wndproc (HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+@@ -9450,6 +9465,47 @@ conversion_agent_wndproc (HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
    return 0;
  }
  
@@ -100,7 +100,7 @@ index 2819d268939..592159f3686 100644
  
  /*
    Emacs Lisp function entries
-@@ -12600,6 +12656,10 @@ window instead of current window.  */);
+@@ -12598,6 +12654,10 @@ window instead of current window.  */);
  
    /* W32 specific functions */
  
@@ -111,7 +111,7 @@ index 2819d268939..592159f3686 100644
    defsubr (&Sw32_define_rgb_color);
    defsubr (&Sw32_display_monitor_attributes_list);
    defsubr (&Sw32_send_sys_command);
-@@ -12934,6 +12994,11 @@ void
+@@ -12932,6 +12992,11 @@ void
  globals_of_w32fns (void)
  {
    HMODULE user32_lib = GetModuleHandle ("user32.dll");
@@ -124,7 +124,7 @@ index 2819d268939..592159f3686 100644
      TrackMouseEvent not available in all versions of Windows, so must load
      it dynamically.  Do it once, here, instead of every time it is used.
 diff --git a/src/w32term.h b/src/w32term.h
-index 89f8c9c0f33..b447313ff96 100644
+index 4c4bdc0e139..e50a103e4a8 100644
 --- a/src/w32term.h
 +++ b/src/w32term.h
 @@ -685,6 +685,8 @@ do { \
