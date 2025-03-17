@@ -11,12 +11,11 @@
 
 * GNU Emacs 30.1(あるいは31.0.50)をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ - W32-IME組み込み
 
-飛躍的に高速化したnative compileをするemacs、いわゆるgccemacsですが、Windowsでも自前でコンパイルすることで動作します。ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。
-今回からUCRT64環境でビルドすることにしました。
+飛躍的に高速化したnative compileをするemacs、いわゆるgccemacsですが、Windowsでも自前でコンパイルすることで動作します。ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。UCRT64環境でビルドします。
 
 msys2のパッケージリポジトリには既にUCRT版が準備されていますので、以下のパッチを適用する必要がない場合は、それをインストールするとよいでしょう。https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-emacs
 
-IMEやcmigemoに関するパッチは、以下の情報由来のものです。Emacs 29.4のソースに適用できるように作成してあります。
+IMEやcmigemoに関するパッチは、以下の情報由来のものです。Emacs 30.1や31.0.50のソースに適用できるように作成してあります。
 
 - [[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][about patches and how to build emacs on Windows. (Japanese)]] :: 日本語Windows向けのIMEパッチやcmigemoを組み込むためのパッチ情報と、Windows上でemacsをコンパイルして使うための情報が丁寧に記されています。
 
@@ -90,7 +89,7 @@ emacsからプロセスを起動すると、UTF-8からCP932に変換されて�
 
 * ビルド方法
 
-ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。日本の組織内では、プロキシを経由するネット環境が多いと思います。そういう環境の方にもつまずきが少なくなるように書きました。64bit環境を想定しています。
+ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。
 
 * Windows上のemacsを使用するときに、同時に設定しておくと便利かもしれないもの
 
