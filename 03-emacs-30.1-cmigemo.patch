@@ -1,8 +1,8 @@
 diff --git a/configure.ac b/configure.ac
-index 19791a84852..57d623bc5cc 100644
+index 9f37d1a..3e86188 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -575,6 +575,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
+@@ -596,6 +596,7 @@ AC_DEFUN
  OPTION_DEFAULT_OFF([small-ja-dic],[generate a smaller-size Japanese dictionary])
  OPTION_DEFAULT_OFF([android],[cross-compile Android application package])
  OPTION_DEFAULT_ON([android-debug],[don't build Emacs as a debug package on Android])
@@ -10,7 +10,7 @@ index 19791a84852..57d623bc5cc 100644
  
  # Find out of Android support is enabled and mailutils has defaulted
  # to `yes-unless-android'.  Disable it if so.
-@@ -5269,6 +5270,14 @@ fi
+@@ -5379,6 +5380,14 @@ AC_DEFUN
  AC_SUBST([LIBPNG])
  AC_SUBST([PNG_CFLAGS])
  
@@ -25,16 +25,16 @@ index 19791a84852..57d623bc5cc 100644
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -7532,7 +7541,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
+@@ -7728,7 +7737,7 @@ AC_DEFUN
   M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
   SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
-  UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINERAMA XINPUT2 XPM XRANDR XWIDGETS \
-- X_TOOLKIT ZLIB; do
-+ X_TOOLKIT ZLIB CMIGEMO; do
+  UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINPUT2 XPM XWIDGETS X_TOOLKIT \
+- ZLIB; do
++ ZLIB CMIGEMO; do
  
      case $opt in
        PDUMPER) val=${with_pdumper} ;;
-@@ -7612,6 +7621,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -7808,6 +7817,7 @@ AC_DEFUN
    Does Emacs use the GMP library?                         ${HAVE_GMP}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}
@@ -42,22 +42,146 @@ index 19791a84852..57d623bc5cc 100644
    Does Emacs use toolkit scroll bars?                     ${USE_TOOLKIT_SCROLL_BARS}
    Does Emacs support Xwidgets?                            ${HAVE_XWIDGETS}
    Does Emacs have threading support in lisp?              ${threads_enabled}
+diff --git a/nt/addpm.c b/nt/addpm.c
+index 6b4c3da..d850011 100644
+--- a/nt/addpm.c
++++ b/nt/addpm.c
+@@ -56,10 +56,6 @@ #define COBJMACROS 1
+ #include <shlobj.h>
+ #include <ddeml.h>
+ 
+-#ifndef OLD_PATHS
+-#include "../src/epaths.h"
+-#endif
+-
+ HDDEDATA CALLBACK DdeCallback (UINT, UINT, HCONV, HSZ, HSZ, HDDEDATA, DWORD_PTR,
+ 			       DWORD_PTR);
+ 
+@@ -75,100 +71,6 @@ #define DdeCommand(str) 	\
+ 	DdeClientTransaction ((LPBYTE)str, strlen (str)+1, conversation, (HSZ)NULL, \
+ 		              CF_TEXT, XTYP_EXECUTE, 30000, NULL)
+ 
+-#define REG_ROOT "SOFTWARE\\GNU\\Emacs"
+-#define REG_APP_PATH \
+-  "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\emacs.exe"
+-
+-static struct entry
+-{
+-  const char *name;
+-  const char *value;
+-}
+-env_vars[] =
+-{
+-#ifdef OLD_PATHS
+-  {"emacs_dir", NULL},
+-  {"EMACSLOADPATH", "%emacs_dir%/site-lisp;%emacs_dir%/../site-lisp;%emacs_dir%/lisp"},
+-  {"SHELL", "%emacs_dir%/bin/cmdproxy.exe"},
+-  {"EMACSDATA", "%emacs_dir%/etc"},
+-  {"EMACSPATH", "%emacs_dir%/bin"},
+-  /* We no longer set INFOPATH because Info-default-directory-list
+-     is then ignored.  */
+-  /*  {"INFOPATH", "%emacs_dir%/info"},  */
+-  {"EMACSDOC", "%emacs_dir%/etc"},
+-  {"TERM", "cmd"}
+-#else  /* !OLD_PATHS */
+-  {"emacs_dir", NULL},
+-  {"EMACSLOADPATH", PATH_SITELOADSEARCH ";" PATH_LOADSEARCH},
+-  {"SHELL", PATH_EXEC "/cmdproxy.exe"},
+-  {"EMACSDATA", PATH_DATA},
+-  {"EMACSPATH", PATH_EXEC},
+-  /* We no longer set INFOPATH because Info-default-directory-list
+-     is then ignored.  */
+-  /*  {"INFOPATH", "%emacs_dir%/info"},  */
+-  {"EMACSDOC", PATH_DOC},
+-  {"TERM", "cmd"}
+-#endif
+-};
+-
+-static void
+-add_registry (const char *path)
+-{
+-  HKEY hrootkey = NULL;
+-  int i;
+-
+-  /* Record the location of Emacs to the App Paths key if we have
+-     sufficient permissions to do so.  This helps Windows find emacs quickly
+-     if the user types emacs.exe in the "Run Program" dialog without having
+-     emacs on their path.  Some applications also use the same registry key
+-     to discover the installation directory for programs they are looking for.
+-     Multiple installations cannot be handled by this method, but it does not
+-     affect the general operation of other installations of Emacs, and we
+-     are blindly overwriting the Start Menu entries already.
+-  */
+-  if (RegCreateKeyEx (HKEY_LOCAL_MACHINE, REG_APP_PATH, 0, NULL,
+-                      REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL,
+-                      &hrootkey, NULL) == ERROR_SUCCESS)
+-    {
+-      int len;
+-      char *emacs_path;
+-
+-      len = strlen (path) + 15; /* \bin\emacs.exe + terminator.  */
+-      emacs_path = (char *) alloca (len);
+-      sprintf (emacs_path, "%s\\bin\\emacs.exe", path);
+-
+-      RegSetValueEx (hrootkey, NULL, 0, REG_EXPAND_SZ, emacs_path, len);
+-      RegCloseKey (hrootkey);
+-    }
+-
+-  /* Previous versions relied on registry settings, but we do not need
+-     them any more.  If registry settings are installed from a previous
+-     version, replace them to ensure they are the current settings.
+-     Otherwise, do nothing.  */
+-
+-  /* Check both the current user and the local machine to see if we
+-     have any resources.  */
+-
+-  if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, REG_ROOT, 0,
+-		    KEY_WRITE | KEY_QUERY_VALUE, &hrootkey) != ERROR_SUCCESS
+-      && RegOpenKeyEx (HKEY_CURRENT_USER, REG_ROOT, 0,
+-		       KEY_WRITE | KEY_QUERY_VALUE, &hrootkey) != ERROR_SUCCESS)
+-    return;
+-
+-  for (i = 0; i < (sizeof (env_vars) / sizeof (env_vars[0])); i++)
+-    {
+-      const char * value = env_vars[i].value ? env_vars[i].value : path;
+-
+-      /* Replace only those settings that already exist.  */
+-      if (RegQueryValueEx (hrootkey, env_vars[i].name, NULL,
+-			   NULL, NULL, NULL) == ERROR_SUCCESS)
+-	RegSetValueEx (hrootkey, env_vars[i].name, 0, REG_EXPAND_SZ,
+-		       value, lstrlen (value) + 1);
+-    }
+-
+-  RegCloseKey (hrootkey);
+-}
+-
+ int
+ main (int argc, char *argv[])
+ {
+@@ -236,7 +138,6 @@ main (int argc, char *argv[])
+ 	}
+     }
+ 
+-  add_registry (emacs_path);
+   prog_name =  "runemacs.exe";
+ 
+   /* Try to install globally.  */
 diff --git a/src/Makefile.in b/src/Makefile.in
-index 8296329f136..1eab77ff8de 100644
+index b5d88eb..b059e81 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -461,7 +461,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o     \
- 	region-cache.o sound.o timefns.o atimer.o			       \
+@@ -476,7 +476,7 @@ base_obj =
+ 	region-cache.o sound.o timefns.o atimer.o 			       \
  	doprnt.o intervals.o textprop.o composite.o xml.o lcms.o $(NOTIFY_OBJ) \
  	$(XWIDGETS_OBJ) 						       \
 -	profiler.o decompress.o 					       \
 +	profiler.o decompress.o cmigemo.o					       \
  	thread.o systhread.o sqlite.o  treesit.o			       \
  	itree.o json.o 							       \
- 	$(MSDOS_OBJ) $(MSDOS_X_OBJ) $(NS_OBJ) $(CYGWIN_OBJ) $(FONT_OBJ)        \
+ 	$(if $(HYBRID_MALLOC),sheap.o) 					       \
 diff --git a/src/cmigemo.c b/src/cmigemo.c
 new file mode 100644
-index 00000000000..81af1430d6e
+index 0000000..81af143
 --- /dev/null
 +++ b/src/cmigemo.c
 @@ -0,0 +1,459 @@
@@ -521,10 +645,10 @@ index 00000000000..81af1430d6e
 +}
 +#endif /* HAVE_CMIGEMO */
 diff --git a/src/emacs.c b/src/emacs.c
-index f0281044c9e..9e34ce33039 100644
+index 1e07b2c..1adc929 100644
 --- a/src/emacs.c
 +++ b/src/emacs.c
-@@ -249,6 +249,10 @@ char const *emacs_wd;
+@@ -259,6 +259,10 @@ #define MAIN_PROGRAM
  static void sort_args (int argc, char **argv);
  static void syms_of_emacs (void);
  
@@ -535,7 +659,7 @@ index f0281044c9e..9e34ce33039 100644
  /* C99 needs each string to be at most 4095 characters, and the usage
     strings below are split to not overflow this limit.  */
  static char const *const usage_message[] =
-@@ -2414,6 +2418,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+@@ -2491,6 +2495,10 @@ main (int argc, char **argv)
        syms_of_pdumper ();
        syms_of_json ();
  

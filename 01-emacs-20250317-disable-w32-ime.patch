@@ -1,5 +1,5 @@
 diff --git a/src/w32fns.c b/src/w32fns.c
-index 6265301924c..3854a8140d3 100644
+index 4fac66c3b34..1d049980706 100644
 --- a/src/w32fns.c
 +++ b/src/w32fns.c
 @@ -145,6 +145,8 @@ static BOOL w32_perform_reconversion (HWND, RECONVERTSTRING*);
@@ -52,7 +52,7 @@ index 6265301924c..3854a8140d3 100644
      default:
  
  #ifdef USE_W32_IME
-@@ -9450,6 +9465,47 @@ conversion_agent_wndproc (HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+@@ -9455,6 +9470,47 @@ conversion_agent_wndproc (HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
    return 0;
  }
  
@@ -100,7 +100,7 @@ index 6265301924c..3854a8140d3 100644
  
  /*
    Emacs Lisp function entries
-@@ -12598,6 +12654,10 @@ window instead of current window.  */);
+@@ -12603,6 +12659,10 @@ window instead of current window.  */);
  
    /* W32 specific functions */
  
@@ -111,7 +111,7 @@ index 6265301924c..3854a8140d3 100644
    defsubr (&Sw32_define_rgb_color);
    defsubr (&Sw32_display_monitor_attributes_list);
    defsubr (&Sw32_send_sys_command);
-@@ -12932,6 +12992,11 @@ void
+@@ -12937,6 +12997,11 @@ void
  globals_of_w32fns (void)
  {
    HMODULE user32_lib = GetModuleHandle ("user32.dll");

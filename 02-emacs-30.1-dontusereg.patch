@@ -1,5 +1,5 @@
 diff --git a/nt/addpm.c b/nt/addpm.c
-index 6aee45d..d934fd8 100644
+index 6b4c3da..d850011 100644
 --- a/nt/addpm.c
 +++ b/nt/addpm.c
 @@ -56,10 +56,6 @@ along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.  */
