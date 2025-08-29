@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index cf274c0..9f37d1a 100644
+index aedf5de..e1ce45b 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -569,6 +569,11 @@ AC_ARG_WITH([ns],[AS_HELP_STRING([--with-ns],
@@ -208,7 +208,7 @@ index 7141363..26a9ad3 100644
      (progn
        (load "term/common-win")
 diff --git a/src/frame.c b/src/frame.c
-index b21ff73..427d6e1 100644
+index d044627..44b4ac4 100644
 --- a/src/frame.c
 +++ b/src/frame.c
 @@ -1477,8 +1477,27 @@ affects all frames on the same terminal device.  */)
@@ -239,7 +239,7 @@ index b21ff73..427d6e1 100644
  {
    struct frame *sf = SELECTED_FRAME (), *f;
  
-@@ -4040,6 +4059,9 @@ static const struct frame_parm_table frame_parms[] =
+@@ -4042,6 +4061,9 @@ static const struct frame_parm_table frame_parms[] =
    {"fullscreen",                SYMBOL_INDEX (Qfullscreen)},
    {"font-backend",		SYMBOL_INDEX (Qfont_backend)},
    {"alpha",			SYMBOL_INDEX (Qalpha)},
@@ -2099,10 +2099,10 @@ index 558554a..8c262e2 100644
    defsubr (&Sold_selected_window);
    defsubr (&Sminibuffer_window);
 diff --git a/src/xdisp.c b/src/xdisp.c
-index f11a8aa..9da129a 100644
+index eb00c51..80efb1a 100644
 --- a/src/xdisp.c
 +++ b/src/xdisp.c
-@@ -13627,8 +13627,23 @@ format_mode_line_unwind_data (struct frame *target_frame,
+@@ -13629,8 +13629,23 @@ format_mode_line_unwind_data (struct frame *target_frame,
    return vector;
  }
  
@@ -2126,7 +2126,7 @@ index f11a8aa..9da129a 100644
  {
    Lisp_Object old_window = AREF (vector, 7);
    Lisp_Object target_frame_window = AREF (vector, 8);
-@@ -13885,8 +13900,23 @@ needs_no_redisplay (struct window *w)
+@@ -13887,8 +13902,23 @@ needs_no_redisplay (struct window *w)
  /* Prepare for redisplay by updating menu-bar item lists when
     appropriate.  This can call eval.  */
  

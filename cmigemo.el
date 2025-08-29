@@ -1,3 +1,5 @@
+;;; cmigemo.el -*- lexical-binding: t; -*-
+
 (eval-when-compile
   (require 'cl-lib))
 

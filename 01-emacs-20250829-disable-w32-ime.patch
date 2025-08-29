@@ -1,5 +1,5 @@
 diff --git a/src/w32fns.c b/src/w32fns.c
-index 4fac66c3b34..1d049980706 100644
+index 85e9cf8b612..68fdb82dbf5 100644
 --- a/src/w32fns.c
 +++ b/src/w32fns.c
 @@ -145,6 +145,8 @@ static BOOL w32_perform_reconversion (HWND, RECONVERTSTRING*);
@@ -24,12 +24,12 @@ index 4fac66c3b34..1d049980706 100644
  typedef BOOL (WINAPI * SetGestureConfig_proc) (HWND, DWORD, UINT,
  					       Emacs_PGESTURECONFIG, UINT);
  
-+ImmAssociateContextEx_Proc associate_contextex_fn = NULL;
++static ImmAssociateContextEx_Proc associate_contextex_fn = NULL;
 +
- TrackMouseEvent_Proc track_mouse_event_fn = NULL;
- ImmGetCompositionString_Proc get_composition_string_fn = NULL;
- ImmGetContext_Proc get_ime_context_fn = NULL;
-@@ -5749,6 +5755,11 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+ static TrackMouseEvent_Proc track_mouse_event_fn = NULL;
+ static ImmGetCompositionString_Proc get_composition_string_fn = NULL;
+ static ImmGetContext_Proc get_ime_context_fn = NULL;
+@@ -5759,6 +5765,11 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
        goto dflt;
  
      case WM_SETFOCUS:
@@ -41,7 +41,7 @@ index 4fac66c3b34..1d049980706 100644
        dpyinfo->faked_key = 0;
        reset_modifiers ();
        if (!w32_kbdhook_active)
-@@ -6115,6 +6126,10 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+@@ -6125,6 +6136,10 @@ w32_wnd_proc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
  #endif
  #endif /* USE_W32_IME */
  
@@ -52,7 +52,7 @@ index 4fac66c3b34..1d049980706 100644
      default:
  
  #ifdef USE_W32_IME
-@@ -9455,6 +9470,47 @@ conversion_agent_wndproc (HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+@@ -9474,6 +9489,47 @@ conversion_agent_wndproc (HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
    return 0;
  }
  
@@ -100,7 +100,7 @@ index 4fac66c3b34..1d049980706 100644
  
  /*
    Emacs Lisp function entries
-@@ -12603,6 +12659,10 @@ window instead of current window.  */);
+@@ -12623,6 +12679,10 @@ window instead of current window.  */);
  
    /* W32 specific functions */
  
@@ -111,7 +111,7 @@ index 4fac66c3b34..1d049980706 100644
    defsubr (&Sw32_define_rgb_color);
    defsubr (&Sw32_display_monitor_attributes_list);
    defsubr (&Sw32_send_sys_command);
-@@ -12937,6 +12997,11 @@ void
+@@ -12957,6 +13017,11 @@ void
  globals_of_w32fns (void)
  {
    HMODULE user32_lib = GetModuleHandle ("user32.dll");
@@ -124,10 +124,10 @@ index 4fac66c3b34..1d049980706 100644
      TrackMouseEvent not available in all versions of Windows, so must load
      it dynamically.  Do it once, here, instead of every time it is used.
 diff --git a/src/w32term.h b/src/w32term.h
-index 4c4bdc0e139..e50a103e4a8 100644
+index a602b97c981..74551d3a5f7 100644
 --- a/src/w32term.h
 +++ b/src/w32term.h
-@@ -685,6 +685,8 @@ do { \
+@@ -686,6 +686,8 @@ do { \
  #define UNICODE_NOCHAR 0xFFFF
  #endif
  

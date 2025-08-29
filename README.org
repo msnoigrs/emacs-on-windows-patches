@@ -9,17 +9,17 @@
 #+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
 #+OPTIONS: author:t creator:nil email:nil date:t
 
-* GNU Emacs 30.1(あるいは31.0.50)をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ - W32-IME組み込み
+* GNU Emacs 30.2(あるいは31.0.50)をWindows向けにMinGW(MSYS2)でコンパイルして使う人のためのパッチ - W32-IME組み込み
 
 飛躍的に高速化したnative compileをするemacs、いわゆるgccemacsですが、Windowsでも自前でコンパイルすることで動作します。ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。UCRT64環境でビルドします。
 
 msys2のパッケージリポジトリには既にUCRT版が準備されていますので、以下のパッチを適用する必要がない場合は、それをインストールするとよいでしょう。https://packages.msys2.org/package/mingw-w64-ucrt-x86_64-emacs
 
-IMEやcmigemoに関するパッチは、以下の情報由来のものです。Emacs 30.1や31.0.50のソースに適用できるように作成してあります。
+IMEやcmigemoに関するパッチは、以下の情報由来のものです。Emacs 30.2や31.0.50のソースに適用できるように作成してあります。
 
 - [[https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa][about patches and how to build emacs on Windows. (Japanese)]] :: 日本語Windows向けのIMEパッチやcmigemoを組み込むためのパッチ情報と、Windows上でemacsをコンパイルして使うための情報が丁寧に記されています。
 
-** 00-emacs-30.1-w32-ime.patch, 00-emacs-20250317-w32-ime.patch
+** 00-emacs-30.2-w32-ime.patch, 00-emacs-20250829-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/ee4457df2f54c5f3ca0d02b56e371233][emacs-26.1-rc1-w32-ime.diff]]と意味的に同じものです。
 
@@ -36,7 +36,7 @@ configureに以下のオプションを追加しています。\\
 --without-documentfeed : DOCUMENTFEED無効
 #+END_EXAMPLE
 
-** 01-emacs-30.1-disable-w32-ime.patch, 01-emacs-20250317-disable-w32-ime.patch
+** 01-emacs-30.2-disable-w32-ime.patch, 01-emacs-20250829-disable-w32-ime.patch
 
 [[https://gist.github.com/rzl24ozi/da3370acb767096ce11fe867c6d9da6a][emacs-26.1-rc1-disable-w32-ime.diff]]と意味的に同じものです。
 
@@ -50,11 +50,11 @@ configureに以下のオプションを追加しています。\\
 (w32-ime-disabled-p) ; IMEが無効化されている場合 t を返す
 #+END_EXAMPLE
 
-** 02-emacs-30.1-dontusereg.patch, 02-emacs-20250317-dontusereg.patch
+** 02-emacs-30.2-dontusereg.patch, 02-emacs-20250829-dontusereg.patch
 
 addpm.exeの処理において各種パスのレジストリ登録処理を省きます。addpm.exeにはスタートメニューにemacsのショートカットを作成するといった機能があります。
 
-** 03-emacs-30.1-cmigemo.patch, 03-emacs-20250317-cmigemo.patch
+** 03-emacs-30.2-cmigemo.patch, 03-emacs-20250829-cmigemo.patch
 
 [[https://gist.github.com/37317c89325bfb3f02f4142c5764b7b5][emacs-26.1-rc1-cmigemo.diff]]と意味的に同じものです。
 
@@ -71,11 +71,11 @@ addpm.exeの処理において各種パスのレジストリ登録処理を省�
 
 =cmigemo.el= =migemo-isearch-auto-enable.el= はこのリポジトリのものを利用してください。
 
-** 04-emacs-30.1-mingw32-remove-check.patch, 04-emacs-20250317-mingw32-remove-check.patch
+** 04-emacs-30.2-mingw32-remove-check.patch, 04-emacs-20250829-mingw32-remove-check.patch
 
 configureスクリプトで行われる、imagemagickとlibgccjitに対するチェック処理がWindowsでは正常に行われないため、それらチェック処理を省きます。
 
-** 001-ucrt-30.1.patch, 001-ucrt-20250317.patch
+** 001-ucrt-30.2.patch, 001-ucrt-20250829.patch
 
 UCRT版のソースに付属するパッチです。
 
