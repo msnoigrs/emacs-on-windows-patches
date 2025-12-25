@@ -1,5 +1,5 @@
 diff --git a/configure.ac b/configure.ac
-index f78ec9d25f4..781a557280b 100644
+index a8746f8f394..082ba759acc 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -598,6 +598,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
@@ -10,7 +10,7 @@ index f78ec9d25f4..781a557280b 100644
  
  # Find out of Android support is enabled and mailutils has defaulted
  # to `yes-unless-android'.  Disable it if so.
-@@ -5371,6 +5372,14 @@ fi
+@@ -5399,6 +5400,14 @@ fi
  AC_SUBST([LIBPNG])
  AC_SUBST([PNG_CFLAGS])
  
@@ -25,7 +25,7 @@ index f78ec9d25f4..781a557280b 100644
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -7617,7 +7626,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
+@@ -7644,7 +7653,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
   M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
   SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
   UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINERAMA XINPUT2 XPM XRANDR XWIDGETS \
@@ -34,7 +34,7 @@ index f78ec9d25f4..781a557280b 100644
  
      case $opt in
        PDUMPER) val=${with_pdumper} ;;
-@@ -7697,6 +7706,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -7724,6 +7733,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
    Does Emacs use the GMP library?                         ${HAVE_GMP}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}
@@ -43,7 +43,7 @@ index f78ec9d25f4..781a557280b 100644
    Does Emacs support Xwidgets?                            ${HAVE_XWIDGETS}
    Does Emacs have threading support in lisp?              ${threads_enabled}
 diff --git a/src/Makefile.in b/src/Makefile.in
-index e4fc2fef711..0cab9badd16 100644
+index a2f7ea011c3..a9b49eb61c1 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
 @@ -461,7 +461,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o     \

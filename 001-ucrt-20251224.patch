@@ -1,8 +1,8 @@
 diff --git a/src/sysdep.c b/src/sysdep.c
-index af16db36f99..e03c4ef23da 100644
+index a8320e1db26..e4266904662 100644
 --- a/src/sysdep.c
 +++ b/src/sysdep.c
-@@ -2959,8 +2959,10 @@ close_output_streams (void)
+@@ -2962,8 +2962,10 @@ close_output_streams (void)
  #else /* !__ANDROID__ */
    if (close_stream (stdout) != 0)
      {
@@ -13,7 +13,7 @@ index af16db36f99..e03c4ef23da 100644
      }
  
    /* Do not close stderr if addresses are being sanitized, as the
-@@ -2969,7 +2971,11 @@ close_output_streams (void)
+@@ -2972,7 +2974,11 @@ close_output_streams (void)
    if (err | (ADDRESS_SANITIZER
  	     ? fflush (stderr) != 0 || ferror (stderr)
  	     : close_stream (stderr) != 0))
