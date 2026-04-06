@@ -1,8 +1,8 @@
 diff --git a/configure.ac b/configure.ac
-index e1ce45b..48fb602 100644
+index aedf5de..2fb284d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -596,6 +596,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
+@@ -591,6 +591,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
  OPTION_DEFAULT_OFF([small-ja-dic],[generate a smaller-size Japanese dictionary])
  OPTION_DEFAULT_OFF([android],[cross-compile Android application package])
  OPTION_DEFAULT_ON([android-debug],[don't build Emacs as a debug package on Android])
@@ -10,7 +10,7 @@ index e1ce45b..48fb602 100644
  
  # Find out of Android support is enabled and mailutils has defaulted
  # to `yes-unless-android'.  Disable it if so.
-@@ -5379,6 +5380,14 @@ fi
+@@ -5374,6 +5375,14 @@ fi
  AC_SUBST([LIBPNG])
  AC_SUBST([PNG_CFLAGS])
  
@@ -25,7 +25,7 @@ index e1ce45b..48fb602 100644
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -7728,7 +7737,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
+@@ -7687,7 +7696,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
   M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
   SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
   UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINPUT2 XPM XWIDGETS X_TOOLKIT \
@@ -34,7 +34,7 @@ index e1ce45b..48fb602 100644
  
      case $opt in
        PDUMPER) val=${with_pdumper} ;;
-@@ -7808,6 +7817,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -7763,6 +7772,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
    Does Emacs use the GMP library?                         ${HAVE_GMP}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}

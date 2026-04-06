@@ -1,8 +1,8 @@
 diff --git a/configure.ac b/configure.ac
-index a8746f8f394..082ba759acc 100644
+index 3567849c81d..4a2c65bfc59 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -598,6 +598,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
+@@ -599,6 +599,7 @@ OPTION_DEFAULT_ON([xinput2],[don't use version 2 of the X Input Extension for in
  OPTION_DEFAULT_OFF([small-ja-dic],[generate a smaller-size Japanese dictionary])
  OPTION_DEFAULT_OFF([android],[cross-compile Android application package])
  OPTION_DEFAULT_ON([android-debug],[don't build Emacs as a debug package on Android])
@@ -10,7 +10,7 @@ index a8746f8f394..082ba759acc 100644
  
  # Find out of Android support is enabled and mailutils has defaulted
  # to `yes-unless-android'.  Disable it if so.
-@@ -5399,6 +5400,14 @@ fi
+@@ -5398,6 +5399,14 @@ fi
  AC_SUBST([LIBPNG])
  AC_SUBST([PNG_CFLAGS])
  
@@ -25,7 +25,7 @@ index a8746f8f394..082ba759acc 100644
  ### Use -ltiff if available, unless '--with-tiff=no'.
  ### mingw32 doesn't use -ltiff, since it loads the library dynamically.
  HAVE_TIFF=no
-@@ -7644,7 +7653,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
+@@ -7635,7 +7644,7 @@ for opt in ACL BE_APP CAIRO DBUS FREETYPE GCONF GIF GLIB GMP GNUTLS GPM GSETTING
   M17N_FLT MODULES NATIVE_COMP NOTIFY NS OLDXMENU PDUMPER PGTK PNG RSVG SECCOMP \
   SOUND SQLITE3 THREADS TIFF TOOLKIT_SCROLL_BARS TREE_SITTER \
   UNEXEC WEBP X11 XAW3D XDBE XFT XIM XINERAMA XINPUT2 XPM XRANDR XWIDGETS \
@@ -34,7 +34,7 @@ index a8746f8f394..082ba759acc 100644
  
      case $opt in
        PDUMPER) val=${with_pdumper} ;;
-@@ -7724,6 +7733,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
+@@ -7711,6 +7720,7 @@ AS_ECHO(["  Does Emacs use -lXaw3d?                                 ${HAVE_XAW3D
    Does Emacs use the GMP library?                         ${HAVE_GMP}
    Does Emacs directly use zlib?                           ${HAVE_ZLIB}
    Does Emacs have dynamic modules support?                ${HAVE_MODULES}
@@ -43,7 +43,7 @@ index a8746f8f394..082ba759acc 100644
    Does Emacs support Xwidgets?                            ${HAVE_XWIDGETS}
    Does Emacs have threading support in lisp?              ${threads_enabled}
 diff --git a/src/Makefile.in b/src/Makefile.in
-index a2f7ea011c3..a9b49eb61c1 100644
+index 111f94fb0ba..4ea577f5741 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
 @@ -461,7 +461,7 @@ base_obj = dispnew.o frame.o scroll.o xdisp.o menu.o $(XMENU_OBJ) window.o     \
@@ -521,7 +521,7 @@ index 00000000000..81af1430d6e
 +}
 +#endif /* HAVE_CMIGEMO */
 diff --git a/src/emacs.c b/src/emacs.c
-index f84ccd9de82..3fba8b52b3b 100644
+index 23e0c6f5318..b5ea5c7b7e1 100644
 --- a/src/emacs.c
 +++ b/src/emacs.c
 @@ -267,6 +267,10 @@ static void copy_args (int argc, char **argv);
@@ -535,7 +535,7 @@ index f84ccd9de82..3fba8b52b3b 100644
  /* C99 needs each string to be at most 4095 characters, and the usage
     strings below are split to not overflow this limit.  */
  static char const *const usage_message[] =
-@@ -2485,6 +2489,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
+@@ -2489,6 +2493,10 @@ Using an Emacs configured with --with-x-toolkit=lucid does not have this problem
        syms_of_pdumper ();
        syms_of_json ();
  
