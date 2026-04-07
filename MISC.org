@@ -1,7 +1,7 @@
 #+TITLE: Misc Settings
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2024/01/17
+#+DATE: 2026/04/07
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE: ja
@@ -45,6 +45,36 @@ https://gist.github.com/msnoigrs/fb1c08a2580704966556364ef558c634
 > "C:\Program Files (x86)\Google\Google Japanese Input\GoogleIMEJaTool.exe" --mode=config_dialog
 #+END_EXAMPLE
 
+emacsからは、mozc.el、mozc_emacs_helper.exe 経由でGoogle日本語入力を利用します。
+mozc_emacs_helper.exeは自分でmozcをビルドするか、以下のページからダウンロードします。ビルド方法についても、以下のページが詳しいです。
+
+https://w.atwiki.jp/ntemacs/pages/93.html
+
+以下はmozcの設定例です。
+
+#+begin_src emacs-lisp
+(when (require 'mozc nil t)
+  (if (eq system-type 'windows-nt)
+      (setq mozc-helper-program-name "c:/msys64/usr/local/bin/mozc_emacs_helper.exe")
+    (defun mozc-word-register ()
+      (interactive)
+      (start-process "wordregister" "GoogleIMEJaTool.exe" "c:/Program Files (x86)/Google/Google Japanese Input/GoogleIMEJaTool.exe" "--mode=word_register_dialog"))
+    (defun mozc-word-register ()
+      (interactive)
+      (start-process "wordregister" "mozc_tool" "/usr/libexec/mozc/mozc_tool" "--mode=word_register_dialog")))
+  (set-language-environment "Japanese")
+  (setq default-input-method "japanese-mozc")
+  (setq mozc-keymap-kana mozc-keymap-kana-101us)
+  (global-set-key (kbd "C-<f7>") 'mozc-word-register)
+  (global-set-key (kbd "<convert>")
+                  (lambda () (interactive)
+                    (mozc-mode 1)
+                    (when (null current-input-method) (toggle-input-method))))
+  (global-set-key (kbd "<non-convert>")
+                  (lambda () (interactive)
+                    (when current-input-method (deactivate-input-method)))))
+#+end_src
+
 ** Ctrl+Shiftや右Alt+Shiftのホットキーを解除
 
 #+BEGIN_QUOTE
@@ -59,9 +89,19 @@ Windowsの設定 左側「地域と言語」選択
 
 ** AutoHotkey
 
-後述する StartEmacs.exe や、IMEをON/OFFするキーバインドを変更するために使用します。以下から最新のものをダウンロードして、インストールします。
+後述する StartEmacs.exe や、IMEをON/OFFするキーバインドを変更するために使用します。
 
-https://github.com/Lexikos/AutoHotkey_L/releases
+*** AutoHotkeyのインストール
+
+最新のAutoHotkeyはv2系ですが、exeコンバータであるAhk2Exeはv1系にのみ同梱されます。v1系とv2系両方をインストールします。
+
+v2の最新は、https://github.com/Lexikos/AutoHotkey_L/releases からダウンロードしてインストールします。
+v1系は、現在 v1.1.37.02 が最新です。https://github.com/AutoHotkey/AutoHotkey/releases/tag/v1.1.37.02
+
+*** Ahk2Exe64.exeのビルド
+
+https://github.com/AutoHotkey/Ahk2Exe をcloneして =Ank2Exe64.ahk= を実行すると、Exc Converterの画面が立ち上がります。Sourceに =Ank2Exe64.ahk= を指定して Convertボタンを押すと、 =Ank2Exe64.exe= が生成されます。
+=C:\Program Files\AutoHotkey\Compiler\Ank2Exe64.exe= にコピーしてください。
 
 ** StartEmacs
 
@@ -76,7 +116,8 @@ https://github.com/Lexikos/AutoHotkey_L/releases
 
 ** IMEのON/OFFのホットキー設定
 
-私は、以下のホットキーを設定して使っています。
+私は、Shiftキーを素早く押す動作に、IMEのON/OFFを割り当てています。
+ただしemacsでは変換/無変換キーを押したことにして、mozc経由で日本語入力をON/OFFしています。
 
 - 右Shiftキーを単体で押すと、IMEをON
 - 左Shiftキーを単体で押すと、IMEをOFF
@@ -92,7 +133,7 @@ Aキーの左隣のキーがCtrlじゃないキーボードを使用する場合
 ** msys2で予めインストールしておく
 
 #+BEGIN_EXAMPLE
-% pacman -S mingw-w64-x86_64-libgit2
+% pacman -S mingw-w64-ucrt-x86_64-libgit2
 % pacman -S p7zip
 % pacman -S unzip
 #+END_EXAMPLE
@@ -102,12 +143,12 @@ Aキーの左隣のキーがCtrlじゃないキーボードを使用する場合
 magitで利用されるlibegit2をMinGW環境でビルドする方法。
 
 #+begin_example
-% pacman -S mingw64/mingw-w64-x86_64-cmake
+% pacman -S mingw-w64-ucrt-x86_64-cmake
 % git clone https://github.com/magit/libegit2
 % cd ligegit2
 % make EMACS=/c/emacs/bin/emacs.exe
 % cd build
-% cmake .. -DCMAKE_INSTALL_PREFIX=/mingw64
+% cmake .. -DCMAKE_INSTALL_PREFIX=/c/msys64
 % make install
 % cd ..
 % mkdir -p /c/emacs/share/emacs/site-lisp/libegit2/build
