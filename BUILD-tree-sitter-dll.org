@@ -1,0 +1,57 @@
+#+TITLE: How to build Tree-sitter module DLL
+#+AUTHOR: Masanao Igarashi
+#+EMAIL: syoux2@gmail.com
+#+DATE: 2026/04/07
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  ja
+#+OPTIONS: H:4 num:nil toc:nil ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
+#+OPTIONS: author:t creator:nil email:nil date:t
+
+* Tree-sitterのモジュールDLLをビルドする
+
+emacsをビルドするする際、configureスクリプトの引数に =--with-tree-sitter= を渡すことで、Tree-sitterが利用可能になります。
+さらに、各グラマーに対応したモジュールを個別に準備する必要があります。
+例えばGo言語用のgo-ts-modeメジャーモードを利用するには、Go言語用のTree-sitterモジュールDLLが必要です。
+ここでは、モジュールDLLのビルド方法を示します。
+
+** iquiw/emacs-tree-sitter-moduleをgit cloneする
+
+#+begin_example
+git clone --recursive https://github.com/iquiw/emacs-tree-sitter-module
+#+end_example
+
+** 各モジュールをビルドする
+
+emacsをビルドするときと同様にMSYS2(UCRT64)環境でビルドします。
+モジュールDLLは =dist= ディレクトリに生成されます。また、=dist/licenses= ディレクトリが存在していることが想定されていますので、予め作成しておきます。
+
+以下の例では、go、rust、javascript、dockerfileのモジュールを作成しています。
+どんなモジュールが利用可能かは、https://github.com/iquiw/emacs-tree-sitter-module に一覧がありますので参照してください。
+
+#+begin_example
+cd emacs-tree-sitter-module
+mkdir -p dist/licenses
+bash ./build.sh go UCRT64 dist
+bash ./build.sh rust UCRT64 dist
+bash ./build.sh javascript UCRT64 dist
+bash ./build.sh dockerfile UCRT64 dist
+#+end_example
+
+** treesitにDLLの場所を設定する
+
+emacsに標準装備の =treesit.el= の設定を行います。
+以下は[[https://github.com/progfolio/elpaca][elpaca(https://github.com/progfolio/elpaca)]]を使用した設定例です。
+
+=treesit-extra-load-path= にビルドしたモジュールDLLを置いてください。
+
+#+begin_src emacs-lisp
+  ;; elpaca用
+  (setup treesit
+    (:option treesit-font-lock-level 4 treesit-extra-load-path '("c:/msys64/home/user/emacs-tree-sitter-module-dll/dist")))
+#+end_src
+
+=go-ts-mode= などのTree-sitterを利用するメジャーモードが利用できるようになります。
+
+Tree-sitterを利用する各種メジャーモードの解説は[[https://apribase.net/2024/06/12/emacs-treesit-ts-mode/][https://apribase.net/2024/06/12/emacs-treesit-ts-mode/]]が詳しいです。
