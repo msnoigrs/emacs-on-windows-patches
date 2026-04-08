@@ -143,15 +143,16 @@ Aキーの左隣のキーがCtrlじゃないキーボードを使用する場合
 magitで利用されるlibegit2をMinGW環境でビルドする方法。
 
 #+begin_example
-% pacman -S mingw-w64-ucrt-x86_64-cmake
-% git clone https://github.com/magit/libegit2
-% cd ligegit2
-% make EMACS=/c/emacs/bin/emacs.exe
-% cd build
-% cmake .. -DCMAKE_INSTALL_PREFIX=/c/msys64
-% make install
-% cd ..
-% mkdir -p /c/emacs/share/emacs/site-lisp/libegit2/build
-% cp libgit.el libgit.elc /c/emacs/share/emacs/site-lisp/libegit2
-% cp libegit2.dll /c/emacs/share/emacs/site-lisp/libegit2/build
+pacman -S mingw-w64-ucrt-x86_64-cmake
+git clone https://github.com/magit/libegit2
+cd libegit2
+git submodule init
+git submodule update
+make CMAKE_POLICY_VERSION_MINIMUM=3.5 CMAKE_INSTALL_PREFIX=/c/msys64 EMACS=/c/emacs/bin/emacs.exe
+cd build
+make install
+cd ..
+mkdir -p /c/emacs/share/emacs/site-lisp/libegit2/build
+cp libgit.el libgit.elc /c/emacs/share/emacs/site-lisp/libegit2
+cp build/libegit2.dll /c/emacs/share/emacs/site-lisp/libegit2/build
 #+end_example
