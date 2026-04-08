@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2026/04/06
+#+DATE: 2026/04/08
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -124,8 +124,14 @@ pacman -S --needed base-devel \
 =git= もインストールします。
 
 #+BEGIN_EXAMPLE
-$ pacman -S mingw-w64-ucrt-x86_64-git
+pacman -S mingw-w64-ucrt-x86_64-git
 #+END_EXAMPLE
+
+=ripgrep= もインストールします。
+
+#+begin_example
+pacman -S mingw-w64-ucrt-x86_64-ripgrep
+#+end_example
 
 ** ソースツリーの展開
 
