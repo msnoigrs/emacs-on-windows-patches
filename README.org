@@ -1,7 +1,7 @@
 #+TITLE: Japanese IME patch and others for building with MinGW on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2026/04/08
+#+DATE: 2026/08/25
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -9,7 +9,7 @@
 #+OPTIONS: tex:t todo:t pri:nil tags:t texht:nil
 #+OPTIONS: author:t creator:nil email:nil date:t
 
-* GNU Emacs 30.2(あるいは31.0.50)をWindows向けにMSYS2(UCRT64)でコンパイルして使う人のためのパッチ
+* GNU Emacs 31.1(あるいは32.0.50)をWindows向けにMSYS2(UCRT64)でコンパイルして使う人のためのパッチ
 
 Windowsでemacsを自前コンパイルするためのパッチです。ビルド方法は[[https://github.com/msnoigrs/emacs-on-windows-patches/blob/master/BUILD.org][BUILD.org]]を参照してください。UCRT64環境でビルドします。
 レジストリ登録処理削除パッチと、cmigemoパッチはお好みにより適用してください。その他のパッチは必須です。
@@ -18,11 +18,11 @@ Windowsでemacsを自前コンパイルするためのパッチです。ビル�
 
 過去にはIME関係のパッチも置いていましたが、emacsが異常終了してしまう現象が起きるようになったため除きました。日本語入力に関しては、mozc.elからgoogle日本語入力を利用する方法に切り替えました。
 
-** 02-emacs-30.2-dontusereg.patch, 02-emacs-20260406-dontusereg.patch
+** 02-emacs-31.1-dontusereg.patch, 02-emacs-20260825-dontusereg.patch
 
 addpm.exeの処理において各種パスのレジストリ登録処理を省きます。addpm.exeにはスタートメニューにemacsのショートカットを作成するといった機能があります。
 
-** 03-emacs-30.2-cmigemo.patch, 03-emacs-20260406-cmigemo.patch
+** 03-emacs-31.1-cmigemo.patch, 03-emacs-20260825-cmigemo.patch
 
 [[https://gist.github.com/37317c89325bfb3f02f4142c5764b7b5][emacs-26.1-rc1-cmigemo.diff]]と意味的に同じものです。
 
@@ -43,11 +43,11 @@ cmigemoに関するパッチは、以下の情報由来のものです。
 
 =cmigemo.el= =migemo-isearch-auto-enable.el= はこのリポジトリのものを利用してください。
 
-** 04-emacs-30.2-mingw32-remove-check.patch, 04-emacs-20260406-mingw32-remove-check.patch
+** 04-emacs-31.1-mingw32-remove-check.patch, 04-emacs-20260825-mingw32-remove-check.patch
 
 configureスクリプトで行われる、imagemagickとlibgccjitに対するチェック処理がWindowsでは正常に行われないため、それらチェック処理を省きます。
 
-** 001-ucrt-30.2.patch, 001-ucrt-20260406.patch
+** 001-ucrt-31.1.patch, 001-ucrt-20260825.patch
 
 UCRT版のソースに付属するパッチです。
 

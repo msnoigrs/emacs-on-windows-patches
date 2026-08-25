@@ -1,0 +1,50 @@
+diff --git a/configure.ac b/configure.ac
+index 2762fac4c2b..81a557623b7 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3685,6 +3685,7 @@ if test "${HAVE_X11}" = "yes" || test "${HAVE_NS}" = "yes" || test "${HAVE_W32}"
+        EMACS_CHECK_MODULES([IMAGEMAGICK], [Wand >= 6.3.5 Wand != 6.8.2])
+     fi
+ 
++    if test "${opsys}" != "mingw32"; then
+     if test $HAVE_IMAGEMAGICK = yes; then
+       OLD_CFLAGS=$CFLAGS
+       OLD_LIBS=$LIBS
+@@ -3719,6 +3720,7 @@ MagickMergeImageLayers,MagickAutoOrientImage],
+       IMAGEMAGICK_CFLAGS=
+       IMAGEMAGICK_LIBS=
+     fi
++    fi
+     AC_SUBST([IMAGEMAGICK_CFLAGS])
+     AC_SUBST([IMAGEMAGICK_LIBS])
+   fi
+@@ -5236,12 +5238,14 @@ if test "${with_native_compilation}" != "no"; then
+ 
+     # Check if libgccjit is available.
+     native_compilation_requested=${with_native_compilation}
++    if test "${opsys}" != "mingw32"; then
+     AC_CHECK_LIB([gccjit], [gcc_jit_context_acquire], [],
+         [if test "${native_compilation_requested}" = "default"; then
+ 	   libgccjit_not_found
+ 	 else
+ 	   libgccjit_not_found_err
+ 	 fi])
++    fi
+     AC_CHECK_HEADERS([libgccjit.h], [],
+         [if test "${native_compilation_requested}" = "default"; then
+ 	   libgccjit_dev_not_found
+@@ -5250,12 +5254,14 @@ if test "${with_native_compilation}" != "no"; then
+ 	 fi])
+     if test "${with_native_compilation}" != "no"; then
+       # Check if libgccjit really works.
++      if test "${opsys}" != "mingw32"; then
+       AC_RUN_IFELSE([libgccjit_smoke_test], [],
+         [if test "${native_compilation_requested}" = "default"; then
+            libgccjit_broken
+ 	 else
+            libgccjit_broken_err
+          fi])
++      fi
+     fi
+ fi
+ 

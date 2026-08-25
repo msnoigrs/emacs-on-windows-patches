@@ -1,7 +1,7 @@
 #+TITLE: How to build GNU Emacs with Japanese IME patch on Windows
 #+AUTHOR: Masanao Igarashi
 #+EMAIL: syoux2@gmail.com
-#+DATE: 2026/04/08
+#+DATE: 2026/08/25
 #+DESCRIPTION:
 #+KEYWORDS:
 #+LANGUAGE:  ja
@@ -148,16 +148,16 @@ emacsのソースをダウンロードします。
 ここ[[https://github.com/emacs-mirror/emacs/tags]]からダウンロード可能です。
 
 #+BEGIN_EXAMPLE
-wget https://github.com/emacs-mirror/emacs/archive/refs/tags/emacs-30.2.tar.gz
+wget https://github.com/emacs-mirror/emacs/archive/refs/tags/emacs-31.1.tar.gz
 #+END_EXAMPLE
 
 展開します。
 
 #+BEGIN_EXAMPLE
-tar xf emacs-30.2.tar.gz
+tar xf emacs-31.1.tar.gz
 #+END_EXAMPLE
 
-=emacs-emacs-30.2= ディレクトリの下にソースツリーができます。
+=emacs-emacs-31.1= ディレクトリの下にソースツリーができます。
 
 本リポジトリのパッチを取得します。gitを使う例を示しますが、[[https://github.com/msnoigrs/emacs-on-windows-patches]]からブラウザを使ってダウンロードしてもかまいません。
 
@@ -169,25 +169,25 @@ gitにプロキシの設定が必要な場合は、[[https://gist.github.com/eva
 
 パッチを適用します。
 
-バージョン30.2の場合。
+バージョン31.1の場合。
 
 #+BEGIN_EXAMPLE
-cd emacs-emacs-30.2
-patch -p1 < ../emacs-on-windows-patches/02-emacs-30.2-dontusereg.patch
-patch -p1 < ../emacs-on-windows-patches/03-emacs-30.2-cmigemo.patch
-patch -p1 < ../emacs-on-windows-patches/04-emacs-30.2-mingw32-remove-check.patch
-patch -p1 < ../emacs-on-windows-patches/001-ucrt-30.2.patch
+cd emacs-emacs-31.1
+patch -p1 < ../emacs-on-windows-patches/02-emacs-31.1-dontusereg.patch
+patch -p1 < ../emacs-on-windows-patches/03-emacs-31.1-cmigemo.patch
+patch -p1 < ../emacs-on-windows-patches/04-emacs-31.1-mingw32-remove-check.patch
+patch -p1 < ../emacs-on-windows-patches/001-ucrt-31.1.patch
 patch -p1 < ../emacs-on-windows-patches/manifest-utf8.patch
 #+END_EXAMPLE
 
-バージョン31.0.50の場合。
+バージョン32.0.50の場合。
 
 #+BEGIN_EXAMPLE
 cd emacs
-patch -p1 < ../emacs-on-windows-patches/02-emacs-20250317-dontusereg.patch
-patch -p1 < ../emacs-on-windows-patches/03-emacs-20250317-cmigemo.patch
-patch -p1 < ../emacs-on-windows-patches/04-emacs-20250317-mingw32-remove-check.patch
-patch -p1 < ../emacs-on-windows-patches/001-ucrt-20250317.patch
+patch -p1 < ../emacs-on-windows-patches/02-emacs-20260825-dontusereg.patch
+patch -p1 < ../emacs-on-windows-patches/03-emacs-20260825-cmigemo.patch
+patch -p1 < ../emacs-on-windows-patches/04-emacs-20260825-mingw32-remove-check.patch
+patch -p1 < ../emacs-on-windows-patches/001-ucrt-20260825.patch
 patch -p1 < ../emacs-on-windows-patches/manifest-utf8.patch
 #+END_EXAMPLE
 
@@ -243,17 +243,16 @@ make install
 *** cmigemoのビルド(cmigemoを組み込む場合)
 
 cmigemoをビルドしてインストールします。
-dllwrapがdeprecatedになったので、gcc -sharedを利用するようにするパッチを適用します。
 
 #+BEGIN_EXAMPLE
 cd ../cmigemo
-patch -p1 < ../emacs-on-windows-patch/cmigemo-make-dll.patch
-./configure --prefix=/usr/local
-make mingw-all
-make mingw-install
+cmake -B build
+cmake --build build
+cmake --install build --component core --prefix /usr/local
+cmake --install build --component dict --prefix /usr/local
 #+END_EXAMPLE
 
-=/usr/local/bin/cmigemo.exe= 、 =/usr/local/bin/migemo.dll= 、 =/usr/local/include/migemo.h= などがインストールされます。
+=/usr/local/bin/cmigemo.exe= 、 =/usr/local/bin/libmigemo.dll= 、 =/usr/local/include/migemo.h= などがインストールされます。
 
 *** Emacsのビルド
 
@@ -264,7 +263,7 @@ export MAKEFLAGS=-j9
 export CC=gcc
 export CFLAGS="-march=native -mtune=native -O2 -pipe -static -s -g0 -fstack-protector-strong -Wp,-D__USE_MINGW_ANSI_STDIO=1 -I/usr/local/include -fno-optimize-sibling-calls -Wno-error=implicit-function-declaration"
 export LDFLAGS="-s"
-cd ../emacs-emacs-30.2
+cd ../emacs-emacs-31.1
 ./autogen.sh
 ./configure --prefix=/c/emacs --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --with-modules --without-dbus --without-pop --with-wide-int --with-imagemagick --with-jpeg --with-png --with-rsvg --with-xml2 --with-xpm --without-compress-install --with-tree-sitter --with-native-compilation=aot --with-cmigemo
 make actual-all
